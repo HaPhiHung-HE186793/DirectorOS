@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: myTask
+  profiles:
+    active: dev
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/mytask}
+    username: ${DB_USERNAME:mytask}
+    password: ${DB_PASSWORD:mytask}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
