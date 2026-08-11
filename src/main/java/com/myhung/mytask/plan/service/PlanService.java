@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +39,7 @@ public class PlanService {
         plan.setPlanDate(request.getPlanDate());
         plan.setNote(request.getNote());
         plan.setCreatedAt(LocalDateTime.now());
-        setPlanItems(plan, request.getItems());
+        setPlanItems(plan, safeItems(request.getItems()));
         return toResponse(dailyPlanRepository.save(plan));
     }
 
@@ -55,7 +56,7 @@ public class PlanService {
 
         plan.setPlanDate(request.getPlanDate());
         plan.setNote(request.getNote());
-        setPlanItems(plan, request.getItems());
+        setPlanItems(plan, safeItems(request.getItems()));
         return toResponse(dailyPlanRepository.save(plan));
     }
 
@@ -111,6 +112,10 @@ public class PlanService {
             item.setDone(itemRequest.isDone());
             plan.getItems().add(item);
         }
+    }
+
+    private List<PlanItemRequest> safeItems(List<PlanItemRequest> items) {
+        return Objects.requireNonNullElse(items, List.of());
     }
 
     private DailyPlanResponse toResponse(DailyPlan plan) {
