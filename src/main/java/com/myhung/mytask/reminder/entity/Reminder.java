@@ -11,11 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
 @Entity
 @Table(name = "reminder")
 public class Reminder {
@@ -36,4 +32,19 @@ public class Reminder {
 
     @Column(nullable = false, length = 20)
     private String channel;
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public Task getTask() { return task; }
+    public void setTask(Task task) { this.task = task; }
+
+    public LocalDateTime getRemindAt() { return remindAt; }
+    public void setRemindAt(LocalDateTime remindAt) { this.remindAt = remindAt; }
+
+    public boolean isSent() { return sent; }
+    public void setSent(boolean sent) { this.sent = sent; }
+
+    public String getChannel() { return channel; }
+    public void setChannel(String channel) { this.channel = channel; }
 }

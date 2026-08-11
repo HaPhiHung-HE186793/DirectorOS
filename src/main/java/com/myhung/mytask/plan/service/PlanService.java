@@ -17,17 +17,21 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
 public class PlanService {
 
     private final DailyPlanRepository dailyPlanRepository;
     private final TaskRepository taskRepository;
     private final TaskService taskService;
+
+    public PlanService(DailyPlanRepository dailyPlanRepository, TaskRepository taskRepository, TaskService taskService) {
+        this.dailyPlanRepository = dailyPlanRepository;
+        this.taskRepository = taskRepository;
+        this.taskService = taskService;
+    }
 
     @Transactional
     public DailyPlanResponse create(DailyPlanRequest request) {
@@ -121,7 +125,7 @@ public class PlanService {
     private DailyPlanResponse toResponse(DailyPlan plan) {
         List<PlanItemResponse> items = plan.getItems().stream()
                 .sorted(Comparator.comparing(PlanItem::getOrderIndex))
-                .map(item -> PlanItemResponse.builder()
+                .<PlanItemResponse>map(item -> PlanItemResponse.builder()
                         .id(item.getId())
                         .taskId(item.getTask().getId())
                         .taskTitle(item.getTask().getTitle())

@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -23,11 +22,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
 public class TaskService {
 
     private final TaskRepository taskRepository;
     private final TaskMapper taskMapper;
+
+    public TaskService(TaskRepository taskRepository, TaskMapper taskMapper) {
+        this.taskRepository = taskRepository;
+        this.taskMapper = taskMapper;
+    }
 
     @Transactional
     public TaskResponse create(TaskRequest request) {
@@ -88,14 +91,23 @@ public class TaskService {
                 cb.lessThan(root.get("dueDate"), LocalDate.now()),
                 cb.notEqual(root.get("status"), TaskStatus.DONE)
         );
+        Specification<Task> bossTasks = (root, query, cb) -> cb.and(
+                cb.equal(root.get("source"), com.myhung.mytask.task.entity.TaskSource.BOSS),
+                cb.notEqual(root.get("status"), TaskStatus.DONE)
+        );
         Specification<Task> highPriority = (root, query, cb) -> cb.and(
                 root.get("priority").in(TaskPriority.HIGH, TaskPriority.URGENT),
                 cb.notEqual(root.get("status"), TaskStatus.DONE)
         );
+        Specification<Task> inProgress = (root, query, cb) -> cb.and(
+                cb.equal(root.get("status"), TaskStatus.IN_PROGRESS)
+        );
 
         Set<Task> result = new LinkedHashSet<>();
         result.addAll(taskRepository.findAll(overdue));
+        result.addAll(taskRepository.findAll(bossTasks));
         result.addAll(taskRepository.findAll(highPriority));
+        result.addAll(taskRepository.findAll(inProgress));
         return result.stream().map(taskMapper::toResponse).toList();
     }
 

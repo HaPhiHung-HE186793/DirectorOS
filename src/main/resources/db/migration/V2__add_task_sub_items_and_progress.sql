@@ -1,0 +1,10 @@
+ALTER TABLE task ADD COLUMN IF NOT EXISTS progress_percentage INT NOT NULL DEFAULT 0;
+
+CREATE TABLE IF NOT EXISTS task_sub_item (
+    id BIGSERIAL PRIMARY KEY,
+    task_id BIGINT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    completed BOOLEAN NOT NULL DEFAULT FALSE,
+    order_index INT NOT NULL DEFAULT 0,
+    CONSTRAINT fk_sub_item_task FOREIGN KEY (task_id) REFERENCES task(id) ON DELETE CASCADE
+);

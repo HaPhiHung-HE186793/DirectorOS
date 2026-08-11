@@ -10,11 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
 @Entity
 @Table(name = "plan_item")
 public class PlanItem {
@@ -38,4 +34,22 @@ public class PlanItem {
 
     @Column(nullable = false)
     private boolean done;
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public DailyPlan getPlan() { return plan; }
+    public void setPlan(DailyPlan plan) { this.plan = plan; }
+
+    public Task getTask() { return task; }
+    public void setTask(Task task) { this.task = task; }
+
+    public Integer getOrderIndex() { return orderIndex; }
+    public void setOrderIndex(Integer orderIndex) { this.orderIndex = orderIndex; }
+
+    public Integer getPlannedMinutes() { return plannedMinutes; }
+    public void setPlannedMinutes(Integer plannedMinutes) { this.plannedMinutes = plannedMinutes; }
+
+    public boolean isDone() { return done; }
+    public void setDone(boolean done) { this.done = done; }
 }

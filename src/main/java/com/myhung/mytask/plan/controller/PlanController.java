@@ -7,7 +7,6 @@ import com.myhung.mytask.plan.service.PlanService;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,10 +22,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/plans")
-@RequiredArgsConstructor
 public class PlanController {
 
     private final PlanService planService;
+
+    public PlanController(PlanService planService) {
+        this.planService = planService;
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

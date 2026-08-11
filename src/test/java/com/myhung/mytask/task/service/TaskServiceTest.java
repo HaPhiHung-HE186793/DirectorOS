@@ -74,7 +74,7 @@ class TaskServiceTest {
         urgent.setTitle("Urgent");
         urgent.setStatus(TaskStatus.TODO);
         urgent.setPriority(TaskPriority.URGENT);
-        urgent.setSource(TaskSource.MANAGER);
+        urgent.setSource(TaskSource.BOSS);
 
         when(taskRepository.findAll(any(org.springframework.data.jpa.domain.Specification.class)))
                 .thenReturn(List.of(overdue))
