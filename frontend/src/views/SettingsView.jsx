@@ -23,7 +23,8 @@ export default function SettingsView() {
   const [showAddCalModal, setShowAddCalModal] = useState(false);
   const [newAccName, setNewAccName] = useState('');
   const [newAccEmail, setNewAccEmail] = useState('');
-  const [newAccType, setNewAccType] = useState('GMAIL');
+  const [newAccType, setNewAccType] = useState('ICAL');
+  const [newAccSyncUrl, setNewAccSyncUrl] = useState('');
   const [newAccColor, setNewAccColor] = useState('#3b82f6');
   const [syncingCals, setSyncingCals] = useState(false);
   const [syncReport, setSyncReport] = useState(null);
@@ -101,6 +102,7 @@ export default function SettingsView() {
       accountName: newAccName,
       emailAddress: newAccEmail,
       calendarType: newAccType,
+      syncUrl: newAccSyncUrl,
       colorTag: newAccColor,
       syncEnabled: true
     });
@@ -108,6 +110,7 @@ export default function SettingsView() {
     setCalendars([...calendars, newCal]);
     setNewAccName('');
     setNewAccEmail('');
+    setNewAccSyncUrl('');
     setShowAddCalModal(false);
   };
 
@@ -407,28 +410,64 @@ export default function SettingsView() {
                 />
               </div>
 
+              <div>
+                <label className="text-xs font-semibold text-slate-300">Phương Thức Xác Thực Lịch (Enterprise Auth)</label>
+                <select
+                  value={newAccType}
+                  onChange={(e) => setNewAccType(e.target.value)}
+                  className="w-full mt-1 p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500"
+                >
+                  <option value="ICAL">🔗 Secret iCal / ICS Private Feed URL (Nhanh & Bảo mật)</option>
+                  <option value="GMAIL">🔐 Google OAuth2 (Ủy quyền Google Calendar API v3)</option>
+                  <option value="OUTLOOK">🔐 Microsoft OAuth2 (Ủy quyền MS Graph API v1.0)</option>
+                </select>
+              </div>
+
+              {newAccType === 'ICAL' ? (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-slate-300">Đường dẫn Lịch Bí Mật (Secret iCal URL)</label>
+                    <span className="text-[10px] text-amber-400 font-mono">Bắt buộc xác thực</span>
+                  </div>
+                  <input
+                    type="url"
+                    required
+                    placeholder="https://calendar.google.com/calendar/ical/.../private-xxxx/basic.ics"
+                    value={newAccSyncUrl}
+                    onChange={(e) => setNewAccSyncUrl(e.target.value)}
+                    className="w-full mt-1 p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-mono text-emerald-400 focus:outline-none focus:border-emerald-500"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    * Lấy tại: Google Calendar Settings ➔ Integrate calendar ➔ Secret address in iCal format.
+                  </p>
+                </div>
+              ) : (
+                <div className="p-3 bg-indigo-950/40 border border-indigo-500/30 rounded-xl space-y-2">
+                  <p className="text-[11px] text-indigo-200">
+                    Cần ủy quyền OAuth2 để cấp quyền <code className="text-emerald-300">calendar.readonly</code> cho DirectorOS.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => alert(`Khởi tạo luồng OAuth2 Redirect tới ${newAccType === 'GMAIL' ? 'Google Cloud IAM' : 'Microsoft Azure AD'}...`)}
+                    className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition flex items-center justify-center gap-2"
+                  >
+                    <Lock className="w-3.5 h-3.5" /> Ủy Quyền {newAccType === 'GMAIL' ? 'Google' : 'Microsoft'} OAuth2
+                  </button>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-semibold text-slate-300">Nguồn Lịch</label>
-                  <select
-                    value={newAccType}
-                    onChange={(e) => setNewAccType(e.target.value)}
-                    className="w-full mt-1 p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500"
-                  >
-                    <option value="GMAIL">Google / Gmail Calendar</option>
-                    <option value="OUTLOOK">Microsoft Outlook</option>
-                    <option value="ICAL">iCal / ICS Feed URL</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-xs font-semibold text-slate-300">Màu Nhận Diện</label>
+                  <label className="text-xs font-semibold text-slate-300">Màu Nhận Diện Lịch</label>
                   <input
                     type="color"
                     value={newAccColor}
                     onChange={(e) => setNewAccColor(e.target.value)}
                     className="w-full mt-1 h-9 bg-slate-950 border border-slate-800 rounded-xl cursor-pointer"
                   />
+                </div>
+                <div className="flex items-end">
+                  <span className="text-[11px] text-slate-400 pb-2">Mã màu hiển thị trùng lịch</span>
                 </div>
               </div>
 
