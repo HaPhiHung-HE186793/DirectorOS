@@ -423,4 +423,58 @@ export const saveSettings = async (settingsMap) => {
   return { success: true, message: "Đã lưu cấu hình (Mô phỏng local)." };
 };
 
+export const fetchCalendars = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}/calendars`);
+    if (res.ok) return await res.json();
+  } catch (err) {}
+  return [
+    { id: 1, accountName: 'Gmail Công Ty VPBank', emailAddress: 'myhung.vpbank@gmail.com', calendarType: 'GMAIL', colorTag: '#3b82f6', syncEnabled: true },
+    { id: 2, accountName: 'Gmail Tập Đoàn B', emailAddress: 'director.hung@corp.com', calendarType: 'GMAIL', colorTag: '#8b5cf6', syncEnabled: true }
+  ];
+};
+
+export const addCalendar = async (calendarData) => {
+  try {
+    const res = await fetch(`${BASE_URL}/calendars`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(calendarData)
+    });
+    if (res.ok) return await res.json();
+  } catch (err) {}
+  return { ...calendarData, id: Date.now() };
+};
+
+export const deleteCalendar = async (id) => {
+  try {
+    await fetch(`${BASE_URL}/calendars/${id}`, { method: 'DELETE' });
+  } catch (err) {}
+};
+
+export const syncCalendars = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}/calendars/sync`, { method: 'POST' });
+    if (res.ok) return await res.json();
+  } catch (err) {}
+  return {
+    syncedCount: 2,
+    hasConflicts: true,
+    conflictsCount: 1,
+    conflicts: [
+      {
+        id: 101,
+        timeSlot: "14:00 - 15:00",
+        accountA: "Gmail Công Ty VPBank (myhung.vpbank@gmail.com)",
+        eventA: "Họp Ban Giám Đốc Q3",
+        accountB: "Gmail Tập Đoàn B (director.hung@corp.com)",
+        eventB: "Thảo Luận Kế Hoạch Đầu Tư",
+        severity: "HIGH",
+        suggestion: "Nên dời cuộc họp bên Gmail Tập Đoàn B sang 15:30 cùng ngày."
+      }
+    ]
+  };
+};
+
+
 
