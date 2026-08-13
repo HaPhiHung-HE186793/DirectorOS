@@ -1,5 +1,6 @@
 package com.myhung.mytask.notification.service;
 
+import com.myhung.mytask.setting.service.SystemSettingService;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -17,17 +18,27 @@ public class TelegramNotificationService {
     private static final Logger log = LoggerFactory.getLogger(TelegramNotificationService.class);
 
     @Value("${telegram.bot.token:}")
-    private String botToken;
+    private String defaultBotToken;
 
     @Value("${telegram.bot.chat-id:}")
-    private String chatId;
+    private String defaultChatId;
 
     @Value("${telegram.bot.enabled:false}")
-    private boolean enabled;
+    private boolean defaultEnabled;
 
+    private final SystemSettingService settingService;
     private final RestTemplate restTemplate = new RestTemplate();
 
+    public TelegramNotificationService(SystemSettingService settingService) {
+        this.settingService = settingService;
+    }
+
     public boolean sendNotification(String message) {
+        String botToken = settingService.getValue("telegram_bot_token", defaultBotToken);
+        String chatId = settingService.getValue("telegram_chat_id", defaultChatId);
+        String enabledStr = settingService.getValue("telegram_enabled", String.valueOf(defaultEnabled));
+        boolean enabled = Boolean.parseBoolean(enabledStr);
+
         if (!enabled || botToken == null || botToken.isBlank() || chatId == null || chatId.isBlank()) {
             log.info("Telegram notification skipped (enabled={}, tokenPresent={}, chatIdPresent={}). Message content:\n{}",
                     enabled, botToken != null && !botToken.isBlank(), chatId != null && !chatId.isBlank(), message);

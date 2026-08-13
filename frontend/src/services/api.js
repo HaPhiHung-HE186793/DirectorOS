@@ -403,3 +403,24 @@ export const triggerDelegationFollowup = async (taskId) => {
   return { success: true, message: "Đã gửi thông báo thúc tiến độ tới cấp dưới qua Telegram!" };
 };
 
+export const fetchSettings = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}/settings`);
+    if (res.ok) return await res.json();
+  } catch (err) {}
+  return {};
+};
+
+export const saveSettings = async (settingsMap) => {
+  try {
+    const res = await fetch(`${BASE_URL}/settings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(settingsMap)
+    });
+    if (res.ok) return await res.json();
+  } catch (err) {}
+  return { success: true, message: "Đã lưu cấu hình (Mô phỏng local)." };
+};
+
+

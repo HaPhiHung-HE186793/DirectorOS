@@ -1,0 +1,14 @@
+# SYSTEM DIRECTIVE FOR AI ASSISTANT
+
+BEFORE answering any question or performing any task in this workspace, you MUST first read and strictly follow the 6-step mandatory workflow defined in:
+`EXECUTIVE_AI_RULE.md`
+
+Workflow summary:
+1. Check Knowledge Base (`<appDataDir>/knowledge`)
+2. Deep Research Top 0.1% Experts & Solutions
+3. Read Project Documentation
+4. Inspect Existing Source Code
+5. Present Professional Proposal
+6. Confirm & Execute
+
+Do not skip any step!
