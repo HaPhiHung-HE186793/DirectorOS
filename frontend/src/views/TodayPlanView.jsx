@@ -5,6 +5,7 @@ import ExecutiveCommandBar from '../components/ExecutiveCommandBar';
 import ExecutiveTimeline from '../components/ExecutiveTimeline';
 import ExecutiveDelegationCard from '../components/ExecutiveDelegationCard';
 import ExecutiveMeetingDossierModal from '../components/ExecutiveMeetingDossierModal';
+import MiniMonthCalendar from '../components/MiniMonthCalendar';
 
 export default function TodayPlanView({
   plan,
@@ -18,6 +19,7 @@ export default function TodayPlanView({
   briefing
 }) {
   const [viewMode, setViewMode] = useState('timeline'); // Default to 'timeline' (Google Calendar style)
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [categoryFilter, setCategoryFilter] = useState('ALL'); // 'ALL' | 'DECISION' | 'MEETING' | 'URGENT' | 'DELEGATION'
   const [selectedDossier, setSelectedDossier] = useState(null);
   const [isLoadingDossier, setIsLoadingDossier] = useState(false);
@@ -242,14 +244,29 @@ export default function TodayPlanView({
         </div>
       </div>
 
-      {/* Main View Content: List vs Timeline */}
+      {/* Main View Content: Mini Month Picker + Timeline / List */}
       {viewMode === 'timeline' ? (
-        <ExecutiveTimeline
-          items={filteredItems}
-          tasks={tasks}
-          onToggleItem={onToggleItem}
-          onOpenPomodoro={onOpenPomodoro}
-        />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Left Column: Mini Month Calendar Picker (Ảnh 1) */}
+          <div className="lg:col-span-4 space-y-4">
+            <MiniMonthCalendar
+              selectedDate={selectedDate}
+              onSelectDate={(date) => setSelectedDate(date)}
+              tasks={tasks}
+            />
+          </div>
+
+          {/* Right Column: Day View Hourly Timeline (Ảnh 2) */}
+          <div className="lg:col-span-8">
+            <ExecutiveTimeline
+              selectedDate={selectedDate}
+              items={filteredItems}
+              tasks={tasks}
+              onToggleItem={onToggleItem}
+              onOpenPomodoro={onOpenPomodoro}
+            />
+          </div>
+        </div>
       ) : (
         <div className="space-y-3">
           <div className="flex items-center justify-between">

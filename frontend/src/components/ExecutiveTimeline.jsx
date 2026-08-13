@@ -2,7 +2,7 @@ import React from 'react';
 import { Clock, CheckCircle2, Circle, Flame, Calendar, Crown, Briefcase, MapPin, Coffee } from 'lucide-react';
 import { getGoogleCalendarUrl } from '../services/api';
 
-export default function ExecutiveTimeline({ items, tasks, onToggleItem, onOpenPomodoro }) {
+export default function ExecutiveTimeline({ selectedDate, items, tasks, onToggleItem, onOpenPomodoro }) {
   const timeSlots = [
     { hour: 8, label: '08:00', slotRange: '08:00 - 09:00', title: 'Báo cáo Đầu ngày & Phê duyệt sớm', defaultType: 'ROUTINE' },
     { hour: 9, label: '09:00', slotRange: '09:00 - 10:30', title: 'Họp Điều hành & Đối tác Chiến lược', defaultType: 'MEETING' },
@@ -19,12 +19,25 @@ export default function ExecutiveTimeline({ items, tasks, onToggleItem, onOpenPo
     { hour: 20, label: '20:00', slotRange: '20:00 - 21:30', title: 'Lập kế hoạch đêm với Thư ký AI (Night Planner)', defaultType: 'ROUTINE' }
   ];
 
+  const targetDate = selectedDate ? new Date(selectedDate) : new Date();
   const today = new Date();
+
+  const isSameDay = (d1, d2) => {
+    if (!d1 || !d2) return false;
+    return (
+      d1.getFullYear() === d2.getFullYear() &&
+      d1.getMonth() === d2.getMonth() &&
+      d1.getDate() === d2.getDate()
+    );
+  };
+
+  const isToday = isSameDay(targetDate, today);
+
   const daysOfWeekVi = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
-  const dayNameStr = daysOfWeekVi[today.getDay()].toUpperCase();
-  const dayNum = today.getDate();
-  const monthNum = today.getMonth() + 1;
-  const yearNum = today.getFullYear();
+  const dayNameStr = daysOfWeekVi[targetDate.getDay()].toUpperCase();
+  const dayNum = targetDate.getDate();
+  const monthNum = targetDate.getMonth() + 1;
+  const yearNum = targetDate.getFullYear();
   const currentHour = today.getHours();
   const currentMinute = today.getMinutes();
 
@@ -46,13 +59,17 @@ export default function ExecutiveTimeline({ items, tasks, onToggleItem, onOpenPo
 
           <div>
             <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[11px] font-extrabold uppercase">
-                Hôm Nay
+              <span className={`px-2.5 py-0.5 rounded-full border text-[11px] font-extrabold uppercase ${
+                isToday
+                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                  : 'bg-blue-500/10 text-blue-400 border-blue-500/30'
+              }`}>
+                {isToday ? 'Hôm Nay' : 'Ngày Được Chọn'}
               </span>
               <span className="text-xs font-mono text-slate-400">GMT+07</span>
             </div>
             <h3 className="text-lg font-black text-white mt-1">
-              {daysOfWeekVi[today.getDay()]}, Ngày {dayNum} Tháng {monthNum}, {yearNum}
+              {daysOfWeekVi[targetDate.getDay()]}, Ngày {dayNum} Tháng {monthNum}, {yearNum}
             </h3>
             <p className="text-xs text-slate-400">Giao diện lịch trực quan theo giờ (Google Calendar Style)</p>
           </div>
@@ -78,7 +95,7 @@ export default function ExecutiveTimeline({ items, tasks, onToggleItem, onOpenPo
             const taskDetails = matchedItem ? tasks?.find(t => t.id === matchedItem.taskId) : null;
             const isDone = matchedItem?.done;
             const isRest = slot.defaultType === 'REST';
-            const isCurrentSlot = currentHour === slot.hour;
+            const isCurrentSlot = isToday && currentHour === slot.hour;
 
             return (
               <div key={index} className="relative flex items-start gap-4 group">
