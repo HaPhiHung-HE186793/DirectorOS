@@ -4,7 +4,7 @@ spring:
   profiles:
     active: dev
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/mytask}
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/mytask}
     username: ${DB_USERNAME:mytask}
     password: ${DB_PASSWORD:mytask}
     driver-class-name: org.postgresql.Driver

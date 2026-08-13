@@ -85,4 +85,26 @@ class TaskServiceTest {
         assertThat(result).hasSize(2);
         assertThat(result).extracting(TaskResponse::id).containsExactlyInAnyOrder(1L, 2L);
     }
+
+    @Test
+    void logPomodoroShouldIncrementActualMinutesAndPomodoros() {
+        Task task = new Task();
+        task.setId(10L);
+        task.setTitle("Pomodoro task");
+        task.setStatus(TaskStatus.TODO);
+        task.setPriority(TaskPriority.HIGH);
+        task.setSource(TaskSource.SELF);
+        task.setActualMinutes(0);
+        task.setCompletedPomodoros(0);
+
+        when(taskRepository.findById(10L)).thenReturn(java.util.Optional.of(task));
+        when(taskRepository.save(any(Task.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        com.myhung.mytask.task.dto.PomodoroLogRequest request = new com.myhung.mytask.task.dto.PomodoroLogRequest(25, true);
+        TaskResponse response = taskService.logPomodoro(10L, request);
+
+        assertThat(response.actualMinutes()).isEqualTo(25);
+        assertThat(response.completedPomodoros()).isEqualTo(1);
+        assertThat(response.status()).isEqualTo(TaskStatus.IN_PROGRESS);
+    }
 }

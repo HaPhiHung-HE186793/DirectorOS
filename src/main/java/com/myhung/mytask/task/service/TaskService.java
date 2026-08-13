@@ -64,6 +64,22 @@ public class TaskService {
         taskRepository.delete(task);
     }
 
+    @Transactional
+    public TaskResponse logPomodoro(Long id, com.myhung.mytask.task.dto.PomodoroLogRequest request) {
+        Task task = findTaskOrThrow(id);
+        int minutes = request.getMinutesSpent() != null ? request.getMinutesSpent() : 25;
+        task.setActualMinutes((task.getActualMinutes() != null ? task.getActualMinutes() : 0) + minutes);
+        task.setCompletedPomodoros((task.getCompletedPomodoros() != null ? task.getCompletedPomodoros() : 0) + 1);
+
+        if (Boolean.TRUE.equals(request.getAutoUpdateStatus()) && task.getStatus() == TaskStatus.TODO) {
+            task.setStatus(TaskStatus.IN_PROGRESS);
+            if (task.getStartedAt() == null) {
+                task.setStartedAt(LocalDateTime.now());
+            }
+        }
+        return taskMapper.toResponse(taskRepository.save(task));
+    }
+
     @Transactional(readOnly = true)
     public List<TaskResponse> getStaleTasks(int days) {
         LocalDateTime cutoff = LocalDateTime.now().minusDays(days);

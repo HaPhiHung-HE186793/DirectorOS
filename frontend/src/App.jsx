@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Navigation from './components/Navigation';
+import PomodoroModal from './components/PomodoroModal';
 import TodayPlanView from './views/TodayPlanView';
 import NightPlannerView from './views/NightPlannerView';
 import TasksPoolView from './views/TasksPoolView';
@@ -14,7 +15,8 @@ import {
   updateTask,
   deleteTask,
   createPlan,
-  triggerNightReminderNow
+  triggerNightReminderNow,
+  logPomodoroSession
 } from './services/api';
 
 export default function App() {
@@ -23,6 +25,7 @@ export default function App() {
   const [todayPlan, setTodayPlan] = useState(null);
   const [candidateTasks, setCandidateTasks] = useState([]);
   const [notificationBanner, setNotificationBanner] = useState(null);
+  const [pomodoroTask, setPomodoroTask] = useState(null);
 
   const loadData = async () => {
     const tList = await fetchTasks();
@@ -79,6 +82,15 @@ export default function App() {
     setTimeout(() => setNotificationBanner(null), 5000);
   };
 
+  const handlePomodoroSessionComplete = async (taskId, minutesSpent) => {
+    const updated = await logPomodoroSession(taskId, minutesSpent);
+    if (updated) {
+      setTasks(tasks.map(t => (t.id === taskId ? updated : t)));
+      setNotificationBanner(`🍅 Xuất sắc! Bạn đã hoàn thành 1 phiên Pomodoro (${minutesSpent}m) cho: "${updated.title}"`);
+      setTimeout(() => setNotificationBanner(null), 6000);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-['Plus_Jakarta_Sans',sans-serif]">
       {/* Top Navbar */}
@@ -105,6 +117,7 @@ export default function App() {
               onToggleItem={handleTogglePlanItem}
               onOpenNewTaskModal={() => setActiveTab('tasks')}
               onGoToNightPlanner={() => setActiveTab('night')}
+              onOpenPomodoro={(task) => setPomodoroTask(task)}
             />
           )}
 
@@ -122,6 +135,7 @@ export default function App() {
               onCreateTask={handleCreateTask}
               onUpdateTask={handleUpdateTask}
               onDeleteTask={handleDeleteTask}
+              onOpenPomodoro={(task) => setPomodoroTask(task)}
             />
           )}
 
@@ -130,6 +144,15 @@ export default function App() {
           {activeTab === 'settings' && <SettingsView />}
         </main>
       </div>
+
+      {/* Pomodoro Modal Global Overlay */}
+      {pomodoroTask && (
+        <PomodoroModal
+          task={pomodoroTask}
+          onClose={() => setPomodoroTask(null)}
+          onSessionComplete={handlePomodoroSessionComplete}
+        />
+      )}
     </div>
   );
 }

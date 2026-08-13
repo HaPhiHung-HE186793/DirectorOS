@@ -140,6 +140,33 @@ export const deleteTask = async (id) => {
   mockTasks = mockTasks.filter(t => t.id !== id);
 };
 
+export const logPomodoroSession = async (taskId, minutesSpent = 25) => {
+  try {
+    const res = await fetch(`${BASE_URL}/tasks/${taskId}/pomodoro`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ minutesSpent, autoUpdateStatus: true })
+    });
+    if (res.ok) return await res.json();
+  } catch (err) {}
+
+  const idx = mockTasks.findIndex(t => t.id === taskId);
+  if (idx !== -1) {
+    const task = mockTasks[idx];
+    const newActual = (task.actualMinutes || 0) + minutesSpent;
+    const newPomodoros = (task.completedPomodoros || 0) + 1;
+    const newStatus = task.status === 'TODO' || task.status === 'PENDING' ? 'IN_PROGRESS' : task.status;
+    mockTasks[idx] = {
+      ...task,
+      actualMinutes: newActual,
+      completedPomodoros: newPomodoros,
+      status: newStatus
+    };
+    return mockTasks[idx];
+  }
+  return null;
+};
+
 export const fetchTodayPlan = async () => {
   try {
     const res = await fetch(`${BASE_URL}/plans/today`);

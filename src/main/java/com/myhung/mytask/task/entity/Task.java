@@ -65,6 +65,12 @@ public class Task {
     @Column(nullable = false)
     private Integer progressPercentage = 0;
 
+    @Column(nullable = false)
+    private Integer actualMinutes = 0;
+
+    @Column(nullable = false)
+    private Integer completedPomodoros = 0;
+
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("orderIndex ASC")
     private List<TaskSubItem> subItems = new ArrayList<>();
@@ -109,6 +115,12 @@ public class Task {
 
     public Integer getEstimatedMinutes() { return estimatedMinutes; }
     public void setEstimatedMinutes(Integer estimatedMinutes) { this.estimatedMinutes = estimatedMinutes; }
+
+    public Integer getActualMinutes() { return actualMinutes; }
+    public void setActualMinutes(Integer actualMinutes) { this.actualMinutes = actualMinutes; }
+
+    public Integer getCompletedPomodoros() { return completedPomodoros; }
+    public void setCompletedPomodoros(Integer completedPomodoros) { this.completedPomodoros = completedPomodoros; }
 
     public Integer getProgressPercentage() { return progressPercentage; }
     public void setProgressPercentage(Integer progressPercentage) { this.progressPercentage = progressPercentage; }

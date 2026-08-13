@@ -37,6 +37,8 @@ public class TaskMapper {
                 .startedAt(task.getStartedAt())
                 .completedAt(task.getCompletedAt())
                 .estimatedMinutes(task.getEstimatedMinutes())
+                .actualMinutes(task.getActualMinutes() != null ? task.getActualMinutes() : 0)
+                .completedPomodoros(task.getCompletedPomodoros() != null ? task.getCompletedPomodoros() : 0)
                 .progressPercentage(task.getProgressPercentage() != null ? task.getProgressPercentage() : 0)
                 .subItems(subItemDtos)
                 .tags(new HashSet<>(task.getTags()))

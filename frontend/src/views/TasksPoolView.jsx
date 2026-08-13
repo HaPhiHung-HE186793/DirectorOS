@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Plus, Search, Filter, Briefcase, AlertOctagon, Clock, CheckCircle2, UserCheck, Tag, Trash2, CheckSquare, Square, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Search, Filter, Briefcase, AlertOctagon, Clock, CheckCircle2, UserCheck, Tag, Trash2, CheckSquare, Square, ChevronDown, ChevronUp, Flame } from 'lucide-react';
 import QuickAddTaskBar from '../components/QuickAddTaskBar';
 
-export default function TasksPoolView({ tasks, onCreateTask, onUpdateTask, onDeleteTask }) {
+export default function TasksPoolView({ tasks, onCreateTask, onUpdateTask, onDeleteTask, onOpenPomodoro }) {
   const [filterTab, setFilterTab] = useState('ALL'); // ALL, BOSS, STALE, OVERDUE, URGENT
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -228,25 +228,36 @@ export default function TasksPoolView({ tasks, onCreateTask, onUpdateTask, onDel
 
               {/* Subtasks Expander Toggle */}
               <div className="pt-2 border-t border-slate-800/80 space-y-2">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
                   <button
                     onClick={() => setExpandedTaskId(isExpanded ? null : task.id)}
                     className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1"
                   >
-                    <span>Checklist công việc con ({task.subItems ? task.subItems.filter(s => s.completed).length : 0}/{task.subItems ? task.subItems.length : 0})</span>
+                    <span>Checklist ({task.subItems ? task.subItems.filter(s => s.completed).length : 0}/{task.subItems ? task.subItems.length : 0})</span>
                     {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                   </button>
 
-                  <select
-                    value={task.status}
-                    onChange={(e) => onUpdateTask(task.id, { ...task, status: e.target.value })}
-                    className="bg-slate-900 border border-slate-700 text-[11px] font-semibold text-slate-300 rounded-lg px-2 py-1 focus:outline-none"
-                  >
-                    <option value="TODO">Chờ làm</option>
-                    <option value="IN_PROGRESS">Đang làm</option>
-                    <option value="DONE">Đã xong</option>
-                    <option value="CANCELLED">Hủy</option>
-                  </select>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => onOpenPomodoro && onOpenPomodoro(task)}
+                      className="px-2 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 text-[11px] font-semibold flex items-center gap-1 transition"
+                      title="Bắt đầu phiên Pomodoro"
+                    >
+                      <Flame className="w-3 h-3 fill-rose-500" />
+                      <span>{task.completedPomodoros ? `🍅 x${task.completedPomodoros}` : 'Pomodoro'}</span>
+                    </button>
+
+                    <select
+                      value={task.status}
+                      onChange={(e) => onUpdateTask(task.id, { ...task, status: e.target.value })}
+                      className="bg-slate-900 border border-slate-700 text-[11px] font-semibold text-slate-300 rounded-lg px-2 py-1 focus:outline-none"
+                    >
+                      <option value="TODO">Chờ làm</option>
+                      <option value="IN_PROGRESS">Đang làm</option>
+                      <option value="DONE">Đã xong</option>
+                      <option value="CANCELLED">Hủy</option>
+                    </select>
+                  </div>
                 </div>
 
                 {/* Subtasks Drawer */}

@@ -21,6 +21,8 @@ public record TaskResponse(
         LocalDateTime startedAt,
         LocalDateTime completedAt,
         Integer estimatedMinutes,
+        Integer actualMinutes,
+        Integer completedPomodoros,
         Integer progressPercentage,
         List<TaskSubItemDto> subItems,
         Set<String> tags) {
@@ -42,6 +44,8 @@ public record TaskResponse(
         private LocalDateTime startedAt;
         private LocalDateTime completedAt;
         private Integer estimatedMinutes;
+        private Integer actualMinutes;
+        private Integer completedPomodoros;
         private Integer progressPercentage;
         private List<TaskSubItemDto> subItems;
         private Set<String> tags;
@@ -58,12 +62,14 @@ public record TaskResponse(
         public Builder startedAt(LocalDateTime startedAt) { this.startedAt = startedAt; return this; }
         public Builder completedAt(LocalDateTime completedAt) { this.completedAt = completedAt; return this; }
         public Builder estimatedMinutes(Integer estimatedMinutes) { this.estimatedMinutes = estimatedMinutes; return this; }
+        public Builder actualMinutes(Integer actualMinutes) { this.actualMinutes = actualMinutes; return this; }
+        public Builder completedPomodoros(Integer completedPomodoros) { this.completedPomodoros = completedPomodoros; return this; }
         public Builder progressPercentage(Integer progressPercentage) { this.progressPercentage = progressPercentage; return this; }
         public Builder subItems(List<TaskSubItemDto> subItems) { this.subItems = subItems; return this; }
         public Builder tags(Set<String> tags) { this.tags = tags; return this; }
 
         public TaskResponse build() {
-            return new TaskResponse(id, title, description, status, priority, source, assignedBy, createdAt, dueDate, startedAt, completedAt, estimatedMinutes, progressPercentage, subItems, tags);
+            return new TaskResponse(id, title, description, status, priority, source, assignedBy, createdAt, dueDate, startedAt, completedAt, estimatedMinutes, actualMinutes, completedPomodoros, progressPercentage, subItems, tags);
         }
     }
 }

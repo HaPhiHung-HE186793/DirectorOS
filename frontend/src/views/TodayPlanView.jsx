@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { CheckCircle2, Circle, Clock, AlertTriangle, Briefcase, ChevronRight, Plus, Sparkles, Calendar, Download } from 'lucide-react';
+import { CheckCircle2, Circle, Clock, AlertTriangle, Briefcase, ChevronRight, Plus, Sparkles, Calendar, Download, Flame } from 'lucide-react';
 import { getGoogleCalendarUrl } from '../services/api';
 
-export default function TodayPlanView({ plan, tasks, onToggleItem, onOpenNewTaskModal, onGoToNightPlanner }) {
+export default function TodayPlanView({ plan, tasks, onToggleItem, onOpenNewTaskModal, onGoToNightPlanner, onOpenPomodoro }) {
   if (!plan || !plan.items || plan.items.length === 0) {
     return (
       <div className="space-y-6">
@@ -126,7 +126,7 @@ export default function TodayPlanView({ plan, tasks, onToggleItem, onOpenNewTask
 
         <div className="space-y-2.5">
           {plan.items.map((item, index) => {
-            const taskDetails = tasks.find(t => t.id === item.taskId);
+            const taskDetails = tasks.find(t => t.id === item.taskId) || { id: item.taskId, title: item.taskTitle };
             const isBossTask = taskDetails?.source === 'BOSS';
 
             return (
@@ -158,6 +158,12 @@ export default function TodayPlanView({ plan, tasks, onToggleItem, onOpenNewTask
                         </span>
                       )}
 
+                      {taskDetails?.completedPomodoros > 0 && (
+                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center gap-1">
+                          <Flame className="w-3 h-3 text-rose-500 fill-rose-500" /> 🍅 x{taskDetails.completedPomodoros} ({taskDetails.actualMinutes || 0}m)
+                        </span>
+                      )}
+
                       {taskDetails?.priority === 'URGENT' && (
                         <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-red-500/10 text-red-400 border border-red-500/20">
                           VIỆC GẤP
@@ -179,6 +185,17 @@ export default function TodayPlanView({ plan, tasks, onToggleItem, onOpenNewTask
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (onOpenPomodoro) onOpenPomodoro(taskDetails);
+                    }}
+                    className="px-2.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 text-xs font-semibold flex items-center gap-1.5 transition active:scale-95"
+                    title="Bật đếm ngược Pomodoro"
+                  >
+                    <Flame className="w-3.5 h-3.5 fill-rose-500" /> Pomodoro
+                  </button>
+
                   <button
                     onClick={(e) => handleOpenGoogleCalendar(e, item)}
                     className="p-2 rounded-lg bg-slate-800 hover:bg-indigo-600/30 text-slate-400 hover:text-indigo-300 transition"

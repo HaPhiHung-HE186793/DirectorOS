@@ -87,4 +87,12 @@ public class TaskController {
     public List<TaskResponse> getOverdueTasks() {
         return taskService.getOverdueTasks();
     }
+
+    @PostMapping("/{id}/pomodoro")
+    public TaskResponse logPomodoro(@PathVariable Long id, @Valid @RequestBody(required = false) com.myhung.mytask.task.dto.PomodoroLogRequest request) {
+        if (request == null) {
+            request = new com.myhung.mytask.task.dto.PomodoroLogRequest();
+        }
+        return taskService.logPomodoro(id, request);
+    }
 }
