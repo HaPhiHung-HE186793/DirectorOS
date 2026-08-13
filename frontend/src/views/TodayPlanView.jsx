@@ -17,7 +17,7 @@ export default function TodayPlanView({
   onOpenBriefingModal,
   briefing
 }) {
-  const [viewMode, setViewMode] = useState('list'); // 'list' | 'timeline'
+  const [viewMode, setViewMode] = useState('timeline'); // Default to 'timeline' (Google Calendar style)
   const [categoryFilter, setCategoryFilter] = useState('ALL'); // 'ALL' | 'DECISION' | 'MEETING' | 'URGENT' | 'DELEGATION'
   const [selectedDossier, setSelectedDossier] = useState(null);
   const [isLoadingDossier, setIsLoadingDossier] = useState(false);
