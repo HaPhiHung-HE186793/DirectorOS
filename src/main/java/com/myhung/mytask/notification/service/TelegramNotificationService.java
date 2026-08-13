@@ -27,10 +27,11 @@ public class TelegramNotificationService {
     private boolean defaultEnabled;
 
     private final SystemSettingService settingService;
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
 
-    public TelegramNotificationService(SystemSettingService settingService) {
+    public TelegramNotificationService(SystemSettingService settingService, RestTemplate restTemplate) {
         this.settingService = settingService;
+        this.restTemplate = restTemplate;
     }
 
     public boolean sendNotification(String message) {

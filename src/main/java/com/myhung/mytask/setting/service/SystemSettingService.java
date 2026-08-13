@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,15 +15,23 @@ import org.springframework.transaction.annotation.Transactional;
 public class SystemSettingService {
 
     private final SystemSettingRepository settingRepository;
+    private final Map<String, String> cache = new ConcurrentHashMap<>();
 
     public SystemSettingService(SystemSettingRepository settingRepository) {
         this.settingRepository = settingRepository;
     }
 
     public String getValue(String key, String defaultValue) {
+        if (cache.containsKey(key)) {
+            String cached = cache.get(key);
+            return (cached != null && !cached.isBlank()) ? cached.trim() : defaultValue;
+        }
+
         Optional<SystemSetting> setting = settingRepository.findById(key);
         if (setting.isPresent() && setting.get().getSettingValue() != null && !setting.get().getSettingValue().isBlank()) {
-            return setting.get().getSettingValue().trim();
+            String val = setting.get().getSettingValue().trim();
+            cache.put(key, val);
+            return val;
         }
         return defaultValue != null ? defaultValue.trim() : null;
     }
@@ -31,7 +40,9 @@ public class SystemSettingService {
         List<SystemSetting> list = settingRepository.findAll();
         Map<String, String> map = new HashMap<>();
         for (SystemSetting setting : list) {
-            map.put(setting.getSettingKey(), setting.getSettingValue() != null ? setting.getSettingValue().trim() : "");
+            String val = setting.getSettingValue() != null ? setting.getSettingValue().trim() : "";
+            map.put(setting.getSettingKey(), val);
+            cache.put(setting.getSettingKey(), val);
         }
         return map;
     }
@@ -45,6 +56,7 @@ public class SystemSettingService {
                 .updatedAt(LocalDateTime.now())
                 .build();
         settingRepository.save(setting);
+        cache.put(key, cleanValue);
     }
 
     @Transactional
