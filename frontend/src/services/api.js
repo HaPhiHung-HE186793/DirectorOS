@@ -423,15 +423,40 @@ export const saveSettings = async (settingsMap) => {
   return { success: true, message: "Đã lưu cấu hình (Mô phỏng local)." };
 };
 
-export const fetchCalendars = async () => {
-  try {
-    const res = await fetch(`${BASE_URL}/calendars`);
-    if (res.ok) return await res.json();
-  } catch (err) {}
+const getStoredCalendars = () => {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    const saved = localStorage.getItem('directoros_connected_calendars');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+  }
   return [
     { id: 1, accountName: 'Gmail Công Ty VPBank', emailAddress: 'myhung.vpbank@gmail.com', calendarType: 'GMAIL', colorTag: '#3b82f6', syncEnabled: true },
     { id: 2, accountName: 'Gmail Tập Đoàn B', emailAddress: 'director.hung@corp.com', calendarType: 'GMAIL', colorTag: '#8b5cf6', syncEnabled: true }
   ];
+};
+
+const saveStoredCalendars = (cals) => {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    localStorage.setItem('directoros_connected_calendars', JSON.stringify(cals));
+  }
+};
+
+let mockCalendars = getStoredCalendars();
+
+export const fetchCalendars = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}/calendars`);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        mockCalendars = data;
+        saveStoredCalendars(data);
+        return data;
+      }
+    }
+  } catch (err) {}
+  return mockCalendars;
 };
 
 export const addCalendar = async (calendarData) => {
@@ -441,15 +466,26 @@ export const addCalendar = async (calendarData) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(calendarData)
     });
-    if (res.ok) return await res.json();
+    if (res.ok) {
+      const data = await res.json();
+      mockCalendars.push(data);
+      saveStoredCalendars(mockCalendars);
+      return data;
+    }
   } catch (err) {}
-  return { ...calendarData, id: Date.now() };
+
+  const newCal = { ...calendarData, id: Date.now() };
+  mockCalendars.push(newCal);
+  saveStoredCalendars(mockCalendars);
+  return newCal;
 };
 
 export const deleteCalendar = async (id) => {
   try {
     await fetch(`${BASE_URL}/calendars/${id}`, { method: 'DELETE' });
   } catch (err) {}
+  mockCalendars = mockCalendars.filter(c => c.id !== id && String(c.id) !== String(id));
+  saveStoredCalendars(mockCalendars);
 };
 
 export const syncCalendars = async (activeCals = []) => {
