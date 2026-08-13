@@ -22,25 +22,26 @@ public class SystemSettingService {
     public String getValue(String key, String defaultValue) {
         Optional<SystemSetting> setting = settingRepository.findById(key);
         if (setting.isPresent() && setting.get().getSettingValue() != null && !setting.get().getSettingValue().isBlank()) {
-            return setting.get().getSettingValue();
+            return setting.get().getSettingValue().trim();
         }
-        return defaultValue;
+        return defaultValue != null ? defaultValue.trim() : null;
     }
 
     public Map<String, String> getAllSettings() {
         List<SystemSetting> list = settingRepository.findAll();
         Map<String, String> map = new HashMap<>();
         for (SystemSetting setting : list) {
-            map.put(setting.getSettingKey(), setting.getSettingValue());
+            map.put(setting.getSettingKey(), setting.getSettingValue() != null ? setting.getSettingValue().trim() : "");
         }
         return map;
     }
 
     @Transactional
     public void saveSetting(String key, String value) {
+        String cleanValue = (value != null) ? value.trim() : "";
         SystemSetting setting = SystemSetting.builder()
                 .settingKey(key)
-                .settingValue(value)
+                .settingValue(cleanValue)
                 .updatedAt(LocalDateTime.now())
                 .build();
         settingRepository.save(setting);

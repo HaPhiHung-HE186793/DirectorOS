@@ -39,6 +39,13 @@ public class TelegramNotificationService {
         String enabledStr = settingService.getValue("telegram_enabled", String.valueOf(defaultEnabled));
         boolean enabled = Boolean.parseBoolean(enabledStr);
 
+        if (botToken != null) {
+            botToken = botToken.trim().replaceAll("^\"|\"$|^'|'$", "");
+        }
+        if (chatId != null) {
+            chatId = chatId.trim().replaceAll("^\"|\"$|^'|'$", "");
+        }
+
         if (!enabled || botToken == null || botToken.isBlank() || chatId == null || chatId.isBlank()) {
             log.info("Telegram notification skipped (enabled={}, tokenPresent={}, chatIdPresent={}). Message content:\n{}",
                     enabled, botToken != null && !botToken.isBlank(), chatId != null && !chatId.isBlank(), message);
@@ -60,7 +67,9 @@ public class TelegramNotificationService {
             log.info("Telegram notification sent successfully to chat {}", chatId);
             return true;
         } catch (Exception e) {
-            log.error("Failed to send Telegram notification: {}", e.getMessage(), e);
+            log.error("Failed to send Telegram notification (botTokenPrefix={}): {}",
+                    (botToken != null && botToken.length() > 5) ? botToken.substring(0, 5) + "..." : "invalid",
+                    e.getMessage(), e);
             return false;
         }
     }
