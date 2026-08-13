@@ -108,7 +108,7 @@ export default function TodayPlanView({
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs font-extrabold tracking-wider uppercase text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20 flex items-center gap-1.5">
-                <Crown className="w-3.5 h-3.5" /> Lịch Trình Giám Đốc ({plan.planDate})
+                <Crown className="w-3.5 h-3.5" /> Lịch Trình Giám Đốc ({plan?.planDate || 'Hôm Nay'})
               </span>
 
               <button

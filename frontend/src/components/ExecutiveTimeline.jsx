@@ -19,25 +19,35 @@ export default function ExecutiveTimeline({ selectedDate, items, tasks, onToggle
     { hour: 20, label: '20:00', slotRange: '20:00 - 21:30', title: 'Lập kế hoạch đêm với Thư ký AI (Night Planner)', defaultType: 'ROUTINE' }
   ];
 
-  const targetDate = selectedDate ? new Date(selectedDate) : new Date();
+  let targetDate = new Date();
+  if (selectedDate) {
+    const parsed = new Date(selectedDate);
+    if (!isNaN(parsed.getTime())) {
+      targetDate = parsed;
+    }
+  }
   const today = new Date();
 
   const isSameDay = (d1, d2) => {
     if (!d1 || !d2) return false;
+    const date1 = new Date(d1);
+    const date2 = new Date(d2);
+    if (isNaN(date1.getTime()) || isNaN(date2.getTime())) return false;
     return (
-      d1.getFullYear() === d2.getFullYear() &&
-      d1.getMonth() === d2.getMonth() &&
-      d1.getDate() === d2.getDate()
+      date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate()
     );
   };
 
   const isToday = isSameDay(targetDate, today);
 
   const daysOfWeekVi = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
-  const dayNameStr = daysOfWeekVi[targetDate.getDay()].toUpperCase();
-  const dayNum = targetDate.getDate();
-  const monthNum = targetDate.getMonth() + 1;
-  const yearNum = targetDate.getFullYear();
+  const dayIndex = typeof targetDate.getDay === 'function' && !isNaN(targetDate.getDay()) ? targetDate.getDay() : 0;
+  const dayNameStr = (daysOfWeekVi[dayIndex] || 'THỨ HAI').toUpperCase();
+  const dayNum = targetDate.getDate() || today.getDate();
+  const monthNum = (targetDate.getMonth() || today.getMonth()) + 1;
+  const yearNum = targetDate.getFullYear() || today.getFullYear();
   const currentHour = today.getHours();
   const currentMinute = today.getMinutes();
 
