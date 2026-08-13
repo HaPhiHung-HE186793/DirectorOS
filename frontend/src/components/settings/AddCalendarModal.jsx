@@ -88,7 +88,20 @@ export const AddCalendarModal = ({
               </p>
               <button
                 type="button"
-                onClick={() => alert(`Khởi tạo luồng OAuth2 Redirect tới ${newAccType === 'GMAIL' ? 'Google Cloud IAM' : 'Microsoft Azure AD'}...`)}
+                onClick={async () => {
+                  const endpoint = newAccType === 'GMAIL' ? '/api/auth/google/url' : '/api/auth/microsoft/url';
+                  try {
+                    const res = await fetch(endpoint);
+                    if (res.ok) {
+                      const data = await res.json();
+                      if (data.authUrl) {
+                        window.location.href = data.authUrl;
+                        return;
+                      }
+                    }
+                  } catch (e) {}
+                  alert(`Khởi tạo luồng OAuth2 Redirect tới ${newAccType === 'GMAIL' ? 'Google Cloud IAM' : 'Microsoft Azure AD'}...`);
+                }}
                 className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition flex items-center justify-center gap-2"
               >
                 <Lock className="w-3.5 h-3.5" /> Ủy Quyền {newAccType === 'GMAIL' ? 'Google' : 'Microsoft'} OAuth2

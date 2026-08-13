@@ -85,15 +85,23 @@ public class ICalParserService {
             int colonIdx = line.indexOf(':');
             if (colonIdx == -1) return null;
             String val = line.substring(colonIdx + 1).trim();
+            boolean isUtc = val.endsWith("Z");
 
             if (val.length() >= 15) {
                 // Format: 20260813T140000Z or 20260813T140000
                 String datePart = val.substring(0, 15);
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss");
-                return LocalDateTime.parse(datePart, formatter);
+                LocalDateTime parsed = LocalDateTime.parse(datePart, formatter);
+
+                if (isUtc) {
+                    // Convert UTC time to Vietnam / Local Time Zone (+7)
+                    return parsed.atZone(java.time.ZoneOffset.UTC)
+                            .withZoneSameInstant(java.time.ZoneId.of("Asia/Ho_Chi_Minh"))
+                            .toLocalDateTime();
+                }
+                return parsed;
             } else if (val.length() == 8) {
                 // Format: 20260813
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
                 return LocalDateTime.parse(val + "T000000", DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss"));
             }
         } catch (Exception e) {
