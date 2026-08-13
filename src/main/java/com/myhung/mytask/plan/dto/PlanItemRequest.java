@@ -15,14 +15,17 @@ public class PlanItemRequest {
     @Min(1)
     private Integer plannedMinutes;
 
+    private String scheduledTime;
+
     private boolean done;
 
     public PlanItemRequest() {}
 
-    public PlanItemRequest(Long taskId, Integer orderIndex, Integer plannedMinutes, boolean done) {
+    public PlanItemRequest(Long taskId, Integer orderIndex, Integer plannedMinutes, String scheduledTime, boolean done) {
         this.taskId = taskId;
         this.orderIndex = orderIndex;
         this.plannedMinutes = plannedMinutes;
+        this.scheduledTime = scheduledTime;
         this.done = done;
     }
 
@@ -35,6 +38,9 @@ public class PlanItemRequest {
     public Integer getPlannedMinutes() { return plannedMinutes; }
     public void setPlannedMinutes(Integer plannedMinutes) { this.plannedMinutes = plannedMinutes; }
 
+    public String getScheduledTime() { return scheduledTime; }
+    public void setScheduledTime(String scheduledTime) { this.scheduledTime = scheduledTime; }
+
     public boolean isDone() { return done; }
     public void setDone(boolean done) { this.done = done; }
 
@@ -46,15 +52,17 @@ public class PlanItemRequest {
         private Long taskId;
         private Integer orderIndex;
         private Integer plannedMinutes;
+        private String scheduledTime;
         private boolean done;
 
         public PlanItemRequestBuilder taskId(Long taskId) { this.taskId = taskId; return this; }
         public PlanItemRequestBuilder orderIndex(Integer orderIndex) { this.orderIndex = orderIndex; return this; }
         public PlanItemRequestBuilder plannedMinutes(Integer plannedMinutes) { this.plannedMinutes = plannedMinutes; return this; }
+        public PlanItemRequestBuilder scheduledTime(String scheduledTime) { this.scheduledTime = scheduledTime; return this; }
         public PlanItemRequestBuilder done(boolean done) { this.done = done; return this; }
 
         public PlanItemRequest build() {
-            return new PlanItemRequest(taskId, orderIndex, plannedMinutes, done);
+            return new PlanItemRequest(taskId, orderIndex, plannedMinutes, scheduledTime, done);
         }
     }
 }

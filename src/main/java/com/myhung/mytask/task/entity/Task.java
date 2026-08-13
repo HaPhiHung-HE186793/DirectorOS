@@ -48,6 +48,16 @@ public class Task {
     @Column(nullable = false, length = 20)
     private TaskSource source;
 
+    @Enumerated(EnumType.STRING)
+    @Column(length = 50)
+    private TaskCategory taskCategory = TaskCategory.ROUTINE;
+
+    @Column(length = 50)
+    private String scheduledTime;
+
+    @Column(nullable = false)
+    private Boolean isDirectorDecision = false;
+
     @Column(length = 255)
     private String assignedBy;
 
@@ -130,4 +140,13 @@ public class Task {
 
     public Set<String> getTags() { return tags; }
     public void setTags(Set<String> tags) { this.tags = tags; }
+
+    public TaskCategory getTaskCategory() { return taskCategory; }
+    public void setTaskCategory(TaskCategory taskCategory) { this.taskCategory = taskCategory; }
+
+    public String getScheduledTime() { return scheduledTime; }
+    public void setScheduledTime(String scheduledTime) { this.scheduledTime = scheduledTime; }
+
+    public Boolean getIsDirectorDecision() { return isDirectorDecision; }
+    public void setIsDirectorDecision(Boolean isDirectorDecision) { this.isDirectorDecision = isDirectorDecision; }
 }

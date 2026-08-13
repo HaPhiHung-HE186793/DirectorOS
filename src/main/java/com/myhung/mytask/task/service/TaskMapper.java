@@ -4,6 +4,7 @@ import com.myhung.mytask.task.dto.TaskRequest;
 import com.myhung.mytask.task.dto.TaskResponse;
 import com.myhung.mytask.task.dto.TaskSubItemDto;
 import com.myhung.mytask.task.entity.Task;
+import com.myhung.mytask.task.entity.TaskCategory;
 import com.myhung.mytask.task.entity.TaskStatus;
 import com.myhung.mytask.task.entity.TaskSubItem;
 import java.util.ArrayList;
@@ -31,6 +32,9 @@ public class TaskMapper {
                 .status(task.getStatus())
                 .priority(task.getPriority())
                 .source(task.getSource())
+                .taskCategory(task.getTaskCategory() != null ? task.getTaskCategory() : TaskCategory.ROUTINE)
+                .scheduledTime(task.getScheduledTime())
+                .isDirectorDecision(task.getIsDirectorDecision() != null ? task.getIsDirectorDecision() : false)
                 .assignedBy(task.getAssignedBy())
                 .createdAt(task.getCreatedAt())
                 .dueDate(task.getDueDate())
@@ -51,6 +55,15 @@ public class TaskMapper {
         task.setStatus(request.getStatus());
         task.setPriority(request.getPriority());
         task.setSource(request.getSource());
+        if (request.getTaskCategory() != null) {
+            task.setTaskCategory(request.getTaskCategory());
+        }
+        if (request.getScheduledTime() != null) {
+            task.setScheduledTime(request.getScheduledTime());
+        }
+        if (request.getIsDirectorDecision() != null) {
+            task.setIsDirectorDecision(request.getIsDirectorDecision());
+        }
         task.setAssignedBy(request.getAssignedBy());
         task.setDueDate(request.getDueDate());
         task.setStartedAt(request.getStartedAt());

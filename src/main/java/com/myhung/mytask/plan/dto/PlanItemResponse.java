@@ -6,6 +6,7 @@ public record PlanItemResponse(
         String taskTitle,
         Integer orderIndex,
         Integer plannedMinutes,
+        String scheduledTime,
         boolean done) {
 
     public static Builder builder() {
@@ -18,6 +19,7 @@ public record PlanItemResponse(
         private String taskTitle;
         private Integer orderIndex;
         private Integer plannedMinutes;
+        private String scheduledTime;
         private boolean done;
 
         public Builder id(Long id) { this.id = id; return this; }
@@ -25,10 +27,11 @@ public record PlanItemResponse(
         public Builder taskTitle(String taskTitle) { this.taskTitle = taskTitle; return this; }
         public Builder orderIndex(Integer orderIndex) { this.orderIndex = orderIndex; return this; }
         public Builder plannedMinutes(Integer plannedMinutes) { this.plannedMinutes = plannedMinutes; return this; }
+        public Builder scheduledTime(String scheduledTime) { this.scheduledTime = scheduledTime; return this; }
         public Builder done(boolean done) { this.done = done; return this; }
 
         public PlanItemResponse build() {
-            return new PlanItemResponse(id, taskId, taskTitle, orderIndex, plannedMinutes, done);
+            return new PlanItemResponse(id, taskId, taskTitle, orderIndex, plannedMinutes, scheduledTime, done);
         }
     }
 }

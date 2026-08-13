@@ -1,5 +1,6 @@
 package com.myhung.mytask.task.dto;
 
+import com.myhung.mytask.task.entity.TaskCategory;
 import com.myhung.mytask.task.entity.TaskPriority;
 import com.myhung.mytask.task.entity.TaskSource;
 import com.myhung.mytask.task.entity.TaskStatus;
@@ -27,6 +28,12 @@ public class TaskRequest {
     @NotNull
     private TaskSource source;
 
+    private TaskCategory taskCategory;
+
+    private String scheduledTime;
+
+    private Boolean isDirectorDecision;
+
     private String assignedBy;
 
     private LocalDate dueDate;
@@ -47,7 +54,8 @@ public class TaskRequest {
     public TaskRequest() {}
 
     public TaskRequest(String title, String description, TaskStatus status, TaskPriority priority,
-                       TaskSource source, String assignedBy, LocalDate dueDate, LocalDateTime startedAt,
+                       TaskSource source, TaskCategory taskCategory, String scheduledTime, Boolean isDirectorDecision,
+                       String assignedBy, LocalDate dueDate, LocalDateTime startedAt,
                        LocalDateTime completedAt, Integer estimatedMinutes, Integer progressPercentage,
                        List<TaskSubItemDto> subItems, Set<String> tags) {
         this.title = title;
@@ -55,6 +63,9 @@ public class TaskRequest {
         this.status = status;
         this.priority = priority;
         this.source = source;
+        this.taskCategory = taskCategory;
+        this.scheduledTime = scheduledTime;
+        this.isDirectorDecision = isDirectorDecision;
         this.assignedBy = assignedBy;
         this.dueDate = dueDate;
         this.startedAt = startedAt;
@@ -79,6 +90,15 @@ public class TaskRequest {
 
     public TaskSource getSource() { return source; }
     public void setSource(TaskSource source) { this.source = source; }
+
+    public TaskCategory getTaskCategory() { return taskCategory; }
+    public void setTaskCategory(TaskCategory taskCategory) { this.taskCategory = taskCategory; }
+
+    public String getScheduledTime() { return scheduledTime; }
+    public void setScheduledTime(String scheduledTime) { this.scheduledTime = scheduledTime; }
+
+    public Boolean getIsDirectorDecision() { return isDirectorDecision; }
+    public void setIsDirectorDecision(Boolean isDirectorDecision) { this.isDirectorDecision = isDirectorDecision; }
 
     public String getAssignedBy() { return assignedBy; }
     public void setAssignedBy(String assignedBy) { this.assignedBy = assignedBy; }
@@ -114,6 +134,9 @@ public class TaskRequest {
         private TaskStatus status;
         private TaskPriority priority;
         private TaskSource source;
+        private TaskCategory taskCategory;
+        private String scheduledTime;
+        private Boolean isDirectorDecision;
         private String assignedBy;
         private LocalDate dueDate;
         private LocalDateTime startedAt;
@@ -128,6 +151,9 @@ public class TaskRequest {
         public TaskRequestBuilder status(TaskStatus status) { this.status = status; return this; }
         public TaskRequestBuilder priority(TaskPriority priority) { this.priority = priority; return this; }
         public TaskRequestBuilder source(TaskSource source) { this.source = source; return this; }
+        public TaskRequestBuilder taskCategory(TaskCategory taskCategory) { this.taskCategory = taskCategory; return this; }
+        public TaskRequestBuilder scheduledTime(String scheduledTime) { this.scheduledTime = scheduledTime; return this; }
+        public TaskRequestBuilder isDirectorDecision(Boolean isDirectorDecision) { this.isDirectorDecision = isDirectorDecision; return this; }
         public TaskRequestBuilder assignedBy(String assignedBy) { this.assignedBy = assignedBy; return this; }
         public TaskRequestBuilder dueDate(LocalDate dueDate) { this.dueDate = dueDate; return this; }
         public TaskRequestBuilder startedAt(LocalDateTime startedAt) { this.startedAt = startedAt; return this; }
@@ -138,7 +164,7 @@ public class TaskRequest {
         public TaskRequestBuilder tags(Set<String> tags) { this.tags = tags; return this; }
 
         public TaskRequest build() {
-            return new TaskRequest(title, description, status, priority, source, assignedBy, dueDate, startedAt, completedAt, estimatedMinutes, progressPercentage, subItems, tags);
+            return new TaskRequest(title, description, status, priority, source, taskCategory, scheduledTime, isDirectorDecision, assignedBy, dueDate, startedAt, completedAt, estimatedMinutes, progressPercentage, subItems, tags);
         }
     }
 }

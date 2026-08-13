@@ -58,6 +58,11 @@ public class TaskService {
                 .map(taskMapper::toResponse);
     }
 
+    @Transactional(readOnly = true)
+    public List<TaskResponse> getAllTasksList() {
+        return taskRepository.findAll().stream().map(taskMapper::toResponse).toList();
+    }
+
     @Transactional
     public void delete(Long id) {
         Task task = findTaskOrThrow(id);

@@ -1,8 +1,8 @@
 spring:
   application:
-    name: myTask
+    name: DirectorOS
   profiles:
-    active: dev
+    active: local
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5433/mytask}
     username: ${DB_USERNAME:mytask}

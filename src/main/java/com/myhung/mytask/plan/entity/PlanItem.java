@@ -32,6 +32,9 @@ public class PlanItem {
 
     private Integer plannedMinutes;
 
+    @Column(length = 50)
+    private String scheduledTime;
+
     @Column(nullable = false)
     private boolean done;
 
@@ -49,6 +52,9 @@ public class PlanItem {
 
     public Integer getPlannedMinutes() { return plannedMinutes; }
     public void setPlannedMinutes(Integer plannedMinutes) { this.plannedMinutes = plannedMinutes; }
+
+    public String getScheduledTime() { return scheduledTime; }
+    public void setScheduledTime(String scheduledTime) { this.scheduledTime = scheduledTime; }
 
     public boolean isDone() { return done; }
     public void setDone(boolean done) { this.done = done; }

@@ -1,5 +1,6 @@
 package com.myhung.mytask.task.dto;
 
+import com.myhung.mytask.task.entity.TaskCategory;
 import com.myhung.mytask.task.entity.TaskPriority;
 import com.myhung.mytask.task.entity.TaskSource;
 import com.myhung.mytask.task.entity.TaskStatus;
@@ -15,6 +16,9 @@ public record TaskResponse(
         TaskStatus status,
         TaskPriority priority,
         TaskSource source,
+        TaskCategory taskCategory,
+        String scheduledTime,
+        Boolean isDirectorDecision,
         String assignedBy,
         LocalDateTime createdAt,
         LocalDate dueDate,
@@ -38,6 +42,9 @@ public record TaskResponse(
         private TaskStatus status;
         private TaskPriority priority;
         private TaskSource source;
+        private TaskCategory taskCategory;
+        private String scheduledTime;
+        private Boolean isDirectorDecision;
         private String assignedBy;
         private LocalDateTime createdAt;
         private LocalDate dueDate;
@@ -56,6 +63,9 @@ public record TaskResponse(
         public Builder status(TaskStatus status) { this.status = status; return this; }
         public Builder priority(TaskPriority priority) { this.priority = priority; return this; }
         public Builder source(TaskSource source) { this.source = source; return this; }
+        public Builder taskCategory(TaskCategory taskCategory) { this.taskCategory = taskCategory; return this; }
+        public Builder scheduledTime(String scheduledTime) { this.scheduledTime = scheduledTime; return this; }
+        public Builder isDirectorDecision(Boolean isDirectorDecision) { this.isDirectorDecision = isDirectorDecision; return this; }
         public Builder assignedBy(String assignedBy) { this.assignedBy = assignedBy; return this; }
         public Builder createdAt(LocalDateTime createdAt) { this.createdAt = createdAt; return this; }
         public Builder dueDate(LocalDate dueDate) { this.dueDate = dueDate; return this; }
@@ -69,7 +79,7 @@ public record TaskResponse(
         public Builder tags(Set<String> tags) { this.tags = tags; return this; }
 
         public TaskResponse build() {
-            return new TaskResponse(id, title, description, status, priority, source, assignedBy, createdAt, dueDate, startedAt, completedAt, estimatedMinutes, actualMinutes, completedPomodoros, progressPercentage, subItems, tags);
+            return new TaskResponse(id, title, description, status, priority, source, taskCategory, scheduledTime, isDirectorDecision, assignedBy, createdAt, dueDate, startedAt, completedAt, estimatedMinutes, actualMinutes, completedPomodoros, progressPercentage, subItems, tags);
         }
     }
 }

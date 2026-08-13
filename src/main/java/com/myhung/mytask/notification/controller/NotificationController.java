@@ -15,13 +15,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class NotificationController {
 
     private final NightPlanReminderScheduler nightPlanReminderScheduler;
+    private final com.myhung.mytask.notification.scheduler.MorningExecutiveBriefingScheduler morningExecutiveBriefingScheduler;
     private final TelegramNotificationService telegramNotificationService;
     private final EmailNotificationService emailNotificationService;
 
     public NotificationController(NightPlanReminderScheduler nightPlanReminderScheduler,
+                                  com.myhung.mytask.notification.scheduler.MorningExecutiveBriefingScheduler morningExecutiveBriefingScheduler,
                                   TelegramNotificationService telegramNotificationService,
                                   EmailNotificationService emailNotificationService) {
         this.nightPlanReminderScheduler = nightPlanReminderScheduler;
+        this.morningExecutiveBriefingScheduler = morningExecutiveBriefingScheduler;
         this.telegramNotificationService = telegramNotificationService;
         this.emailNotificationService = emailNotificationService;
     }
@@ -29,6 +32,16 @@ public class NotificationController {
     @PostMapping("/trigger-night-reminder")
     public ResponseEntity<Map<String, Object>> triggerNightReminder() {
         String message = nightPlanReminderScheduler.triggerReminderNow();
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "triggeredAt", java.time.LocalDateTime.now().toString(),
+                "messageContent", message
+        ));
+    }
+
+    @PostMapping("/trigger-morning-briefing")
+    public ResponseEntity<Map<String, Object>> triggerMorningBriefing() {
+        String message = morningExecutiveBriefingScheduler.triggerMorningBriefingNow();
         return ResponseEntity.ok(Map.of(
                 "success", true,
                 "triggeredAt", java.time.LocalDateTime.now().toString(),

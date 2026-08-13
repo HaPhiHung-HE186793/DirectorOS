@@ -1,4 +1,4 @@
-const BASE_URL = '/api';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 // Initial mock data if backend server is not connected
 let mockTasks = [
@@ -300,3 +300,106 @@ export const getGoogleCalendarUrl = async (taskId, taskTitle) => {
   const todayStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
   return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${todayStr}/${todayStr}`;
 };
+
+export const fetchExecutiveBriefing = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}/secretary/briefing`);
+    if (res.ok) return await res.json();
+  } catch (err) {}
+
+  const active = mockTasks.filter(t => t.status !== 'COMPLETED' && t.status !== 'DONE');
+  const decisions = active.filter(t => t.isDirectorDecision || t.taskCategory === 'DECISION');
+  const meetings = active.filter(t => t.taskCategory === 'MEETING' || t.title.toLowerCase().includes('họp'));
+  const urgents = active.filter(t => t.priority === 'URGENT' || t.priority === 'HIGH');
+  const delegated = active.filter(t => t.taskCategory === 'DELEGATION' || t.source === 'BOSS');
+
+  return {
+    date: new Date().toISOString().split('T')[0],
+    greeting: "Kính chào Giám đốc! Chúc Giám đốc một ngày làm việc quyết đoán và thành công rực rỡ.",
+    summaryText: `Hôm nay Giám đốc có tổng cộng ${active.length} công việc cần xử lý. Trong đó có ${decisions.length} mục cần trực tiếp phê duyệt và ${meetings.length} cuộc họp đối tác.`,
+    totalTasksCount: active.length,
+    directorDecisionsCount: decisions.length,
+    meetingsCount: meetings.length,
+    urgentCount: urgents.length,
+    overdueCount: 1,
+    decisionTasks: decisions,
+    meetingTasks: meetings,
+    urgentTasks: urgents,
+    delegatedTasks: delegated,
+    secretaryAdvice: [
+      "⚡ Khuyến nghị Giám đốc phê duyệt các đề xuất tài chính & nhân sự trước 10:30 sáng.",
+      "🤝 Thư ký đã kiểm tra lịch và chuẩn bị hồ sơ cho cuộc họp đối tác chiều nay.",
+      "🚀 Thời gian từ 14:00 - 15:30 được dành riêng cho tư duy chiến lược (Deep Work)."
+    ]
+  };
+};
+
+export const parseDirectorCommand = async (commandText) => {
+  try {
+    const res = await fetch(`${BASE_URL}/secretary/parse-command`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ command: commandText })
+    });
+    if (res.ok) return await res.json();
+  } catch (err) {}
+
+  // Fallback mock task creation
+  const newTask = {
+    id: Date.now(),
+    title: commandText.replace(/^(thư ký ơi|nhắc tôi|lên lịch)\s*/i, ''),
+    description: `Tạo từ chỉ đạo Giám đốc: "${commandText}"`,
+    status: 'TODO',
+    priority: commandText.includes('gấp') ? 'URGENT' : 'HIGH',
+    source: 'SELF',
+    taskCategory: commandText.includes('họp') ? 'MEETING' : commandText.includes('duyệt') ? 'DECISION' : 'ROUTINE',
+    scheduledTime: '14:00 - 15:00',
+    isDirectorDecision: commandText.includes('duyệt'),
+    createdAt: new Date().toISOString()
+  };
+  mockTasks.unshift(newTask);
+  return newTask;
+};
+
+export const fetchMeetingDossier = async (taskId) => {
+  try {
+    const res = await fetch(`${BASE_URL}/secretary/meeting-dossier/${taskId}`);
+    if (res.ok) return await res.json();
+  } catch (err) {}
+
+  return {
+    taskId,
+    meetingTitle: "Họp Chiến Lược & Phê Duyệt Kế Hoạch Ngân Sách",
+    scheduledTime: "15:00 - 16:00",
+    primaryObjective: "Đánh giá hiệu quả đầu tư, duyệt ngân sách bổ sung và chốt KPI cho phòng Kinh doanh & Tài chính.",
+    keyAttendees: [
+      "Giám đốc (Chủ trì)",
+      "Giám đốc Tài chính (CFO)",
+      "Trưởng phòng Kế hoạch & Marketing",
+      "Thư ký AI (Ghi chép & Theo dõi Action Items)"
+    ],
+    strategicQuestions: [
+      "1. Chỉ số ROI kỳ vọng và điểm hòa vốn của phương án kinh doanh Q4 là bao nhiêu?",
+      "2. Rủi ro về dòng tiền khi mở rộng quy mô đã được tính toán kỹ chưa?",
+      "3. Deadline cam kết hoàn thành giai đoạn 1 có thể rút ngắn 1 tuần không?"
+    ],
+    keyContextPoints: [
+      "• Báo cáo doanh thu tháng vừa qua đạt 112% so với chỉ tiêu ban đầu.",
+      "• Quyết định trước đó: Giám đốc đã đồng ý ngân sách thử nghiệm 15%.",
+      "• Đề xuất mới: Xin phê duyệt bổ sung 500 triệu cho chiến dịch Marketing năm mới."
+    ],
+    recommendedOutcome: "Phê duyệt ngân sách có điều kiện đi kèm KPI tăng trưởng +20%."
+  };
+};
+
+export const triggerDelegationFollowup = async (taskId) => {
+  try {
+    const res = await fetch(`${BASE_URL}/secretary/follow-up-delegation/${taskId}`, {
+      method: 'POST'
+    });
+    if (res.ok) return await res.json();
+  } catch (err) {}
+
+  return { success: true, message: "Đã gửi thông báo thúc tiến độ tới cấp dưới qua Telegram!" };
+};
+

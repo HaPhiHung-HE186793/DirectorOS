@@ -113,6 +113,7 @@ public class PlanService {
             item.setTask(task);
             item.setOrderIndex(itemRequest.getOrderIndex());
             item.setPlannedMinutes(itemRequest.getPlannedMinutes());
+            item.setScheduledTime(itemRequest.getScheduledTime());
             item.setDone(itemRequest.isDone());
             plan.getItems().add(item);
         }
@@ -131,6 +132,7 @@ public class PlanService {
                         .taskTitle(item.getTask().getTitle())
                         .orderIndex(item.getOrderIndex())
                         .plannedMinutes(item.getPlannedMinutes())
+                        .scheduledTime(item.getScheduledTime() != null ? item.getScheduledTime() : item.getTask().getScheduledTime())
                         .done(item.isDone())
                         .build())
                 .toList();

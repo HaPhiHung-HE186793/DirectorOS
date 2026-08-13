@@ -10,10 +10,10 @@
     </parent>
 
     <groupId>com.myhung</groupId>
-    <artifactId>mytask</artifactId>
+    <artifactId>director-os</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>myTask</name>
-    <description>Personal daily task and planning app</description>
+    <name>DirectorOS</name>
+    <description>DirectorOS - AI Executive Secretary for C-Level Directors</description>
 
     <properties>
         <java.version>21</java.version>
