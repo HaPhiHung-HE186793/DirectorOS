@@ -7,6 +7,7 @@ import {
   triggerEmailTest,
   fetchCalendars,
   addCalendar,
+  updateCalendar,
   deleteCalendar,
   syncCalendars
 } from '../services/api';
@@ -37,6 +38,7 @@ export const SettingsView = () => {
   // Multi-Email Calendars State
   const [calendars, setCalendars] = useState([]);
   const [showAddCalModal, setShowAddCalModal] = useState(false);
+  const [editingCalId, setEditingCalId] = useState(null);
   const [newAccName, setNewAccName] = useState('');
   const [newAccEmail, setNewAccEmail] = useState('');
   const [newAccType, setNewAccType] = useState('ICAL');
@@ -138,23 +140,51 @@ export const SettingsView = () => {
     setEmailLoading(false);
   };
 
-  const handleAddCalendarAccount = async (e) => {
+  const handleOpenAddModal = () => {
+    setEditingCalId(null);
+    setNewAccName('');
+    setNewAccEmail('');
+    setNewAccType('ICAL');
+    setNewAccSyncUrl('');
+    setNewAccColor('#3b82f6');
+    setShowAddCalModal(true);
+  };
+
+  const handleOpenEditModal = (cal) => {
+    setEditingCalId(cal.id);
+    setNewAccName(cal.accountName || '');
+    setNewAccEmail(cal.emailAddress || '');
+    setNewAccType(cal.calendarType || 'ICAL');
+    setNewAccSyncUrl(cal.syncUrl || '');
+    setNewAccColor(cal.colorTag || '#3b82f6');
+    setShowAddCalModal(true);
+  };
+
+  const handleSaveCalendarAccount = async (e) => {
     e.preventDefault();
     if (!newAccName || !newAccEmail) return;
 
-    const newCal = await addCalendar({
+    const payload = {
       accountName: newAccName,
       emailAddress: newAccEmail,
       calendarType: newAccType,
       syncUrl: newAccSyncUrl,
       colorTag: newAccColor,
       syncEnabled: true
-    });
+    };
 
-    setCalendars([...calendars, newCal]);
+    if (editingCalId) {
+      const updated = await updateCalendar(editingCalId, payload);
+      setCalendars(calendars.map(c => (c.id === editingCalId || String(c.id) === String(editingCalId)) ? updated : c));
+    } else {
+      const newCal = await addCalendar(payload);
+      setCalendars([...calendars, newCal]);
+    }
+
     setNewAccName('');
     setNewAccEmail('');
     setNewAccSyncUrl('');
+    setEditingCalId(null);
     setShowAddCalModal(false);
   };
 
@@ -251,7 +281,8 @@ export const SettingsView = () => {
       {/* 2. Multi-Calendar Hub Card */}
       <MultiCalendarHubCard
         calendars={calendars}
-        onOpenAddModal={() => setShowAddCalModal(true)}
+        onOpenAddModal={handleOpenAddModal}
+        onOpenEditModal={handleOpenEditModal}
         onDeleteCalendar={handleDeleteCalendarAccount}
         onSyncCalendars={handleSyncAndDetectConflicts}
         syncing={syncingCals}
@@ -270,11 +301,15 @@ export const SettingsView = () => {
         testingVoice={testingVoice}
       />
 
-      {/* Add Calendar Modal */}
+      {/* Add / Edit Calendar Modal */}
       <AddCalendarModal
         show={showAddCalModal}
-        onClose={() => setShowAddCalModal(false)}
-        onSubmit={handleAddCalendarAccount}
+        isEditing={!!editingCalId}
+        onClose={() => {
+          setShowAddCalModal(false);
+          setEditingCalId(null);
+        }}
+        onSubmit={handleSaveCalendarAccount}
         newAccName={newAccName}
         setNewAccName={setNewAccName}
         newAccEmail={newAccEmail}
@@ -289,5 +324,6 @@ export const SettingsView = () => {
     </div>
   );
 };
+
 
 export default SettingsView;
