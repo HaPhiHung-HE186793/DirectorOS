@@ -4,6 +4,7 @@ import {
   fetchSettings,
   saveSettings,
   triggerTelegramTest,
+  triggerEmailTest,
   fetchCalendars,
   addCalendar,
   deleteCalendar,
@@ -12,6 +13,7 @@ import {
 import { getAvailableVoices, getAvailableLanguages, speakText, stopSpeech } from '../utils/speech';
 
 import { TelegramSettingsCard } from '../components/settings/TelegramSettingsCard';
+import { EmailNotificationCard } from '../components/settings/EmailNotificationCard';
 import { MultiCalendarHubCard } from '../components/settings/MultiCalendarHubCard';
 import { VoiceSynthesisCard } from '../components/settings/VoiceSynthesisCard';
 import { AddCalendarModal } from '../components/settings/AddCalendarModal';
@@ -114,6 +116,28 @@ export const SettingsView = () => {
     setLoading(false);
   };
 
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [emailTestResult, setEmailTestResult] = useState(null);
+
+  const handleTestEmailNotification = async () => {
+    setEmailLoading(true);
+    setEmailTestResult(null);
+
+    const settingsMap = {
+      email_address: emailAddress,
+      email_enabled: String(emailEnabled)
+    };
+    await saveSettings(settingsMap);
+
+    const res = await triggerEmailTest(
+      emailAddress,
+      "📧 [DirectorOS Test] Bản tin Báo cáo Kế hoạch cho Giám đốc",
+      "Kính chào Giám đốc!\n\nĐây là email thử nghiệm định dạng HTML Executive Briefing gửi từ Thư ký AI DirectorOS.\n\nHệ thống Email Engine đã sẵn sàng gửi báo cáo 21:00 hàng ngày cho Giám đốc!"
+    );
+    setEmailTestResult(res);
+    setEmailLoading(false);
+  };
+
   const handleAddCalendarAccount = async (e) => {
     e.preventDefault();
     if (!newAccName || !newAccEmail) return;
@@ -211,6 +235,17 @@ export const SettingsView = () => {
         onTestNotification={handleTestTelegramNotification}
         loading={loading}
         testResult={testResult}
+      />
+
+      {/* 2. Email Notification Engine Card */}
+      <EmailNotificationCard
+        emailAddress={emailAddress}
+        setEmailAddress={setEmailAddress}
+        emailEnabled={emailEnabled}
+        setEmailEnabled={setEmailEnabled}
+        onTestEmail={handleTestEmailNotification}
+        emailLoading={emailLoading}
+        emailTestResult={emailTestResult}
       />
 
       {/* 2. Multi-Calendar Hub Card */}
