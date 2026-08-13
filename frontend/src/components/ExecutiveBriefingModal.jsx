@@ -1,39 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { Volume2, VolumeX, Sparkles, Crown, Briefcase, AlertTriangle, CheckCircle2, X, ShieldAlert, Zap } from 'lucide-react';
+import { speakText, stopSpeech } from '../utils/speech';
+import { fetchSettings } from '../services/api';
 
 export default function ExecutiveBriefingModal({ briefing, onClose }) {
   const [isPlayingVoice, setIsPlayingVoice] = useState(false);
+  const [voiceConfig, setVoiceConfig] = useState({ lang: 'vi-VN', voiceName: '' });
 
   useEffect(() => {
-    return () => {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
+    const loadVoiceConfig = async () => {
+      const settings = await fetchSettings();
+      if (settings.ai_voice_lang || settings.ai_voice_name) {
+        setVoiceConfig({
+          lang: settings.ai_voice_lang || 'vi-VN',
+          voiceName: settings.ai_voice_name || ''
+        });
       }
+    };
+    loadVoiceConfig();
+
+    return () => {
+      stopSpeech();
     };
   }, []);
 
   const toggleVoiceReadout = () => {
-    if (!('speechSynthesis' in window)) {
-      alert("Trình duyệt không hỗ trợ tổng hợp giọng nói.");
-      return;
-    }
-
     if (isPlayingVoice) {
-      window.speechSynthesis.cancel();
+      stopSpeech();
       setIsPlayingVoice(false);
       return;
     }
 
     const fullText = `${briefing.greeting}. ${briefing.summaryText}. Lời khuyên từ Thư ký: ${briefing.secretaryAdvice?.join('. ')}`;
-    const utterance = new SpeechSynthesisUtterance(fullText);
-    utterance.lang = 'vi-VN';
-    utterance.rate = 1.0;
-
-    utterance.onend = () => setIsPlayingVoice(false);
-    utterance.onerror = () => setIsPlayingVoice(false);
 
     setIsPlayingVoice(true);
-    window.speechSynthesis.speak(utterance);
+    speakText(fullText, {
+      lang: voiceConfig.lang,
+      voiceName: voiceConfig.voiceName,
+      onEnd: () => setIsPlayingVoice(false),
+      onError: () => setIsPlayingVoice(false)
+    });
   };
 
   if (!briefing) return null;

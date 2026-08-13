@@ -1,6 +1,6 @@
 {
-  "short_name": "myTask",
-  "name": "myTask - Quản lý công việc & Auto Planner",
+  "short_name": "DirectorOS",
+  "name": "DirectorOS - Thư Ký AI Giám Đốc",
   "icons": [
     {
       "src": "favicon.ico",
