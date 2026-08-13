@@ -60,6 +60,7 @@ public class ConnectedCalendarService {
 
         List<Map<String, Object>> conflicts = new ArrayList<>();
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM HH:mm");
 
         // Real Interval Overlap Detection Algorithm: O(N^2) for N events
         for (int i = 0; i < allEvents.size(); i++) {
@@ -79,7 +80,14 @@ public class ConnectedCalendarService {
                     LocalDateTime startOverlap = evA.getStart().isAfter(evB.getStart()) ? evA.getStart() : evB.getStart();
                     LocalDateTime endOverlap = evA.getEnd().isBefore(evB.getEnd()) ? evA.getEnd() : evB.getEnd();
 
-                    conflict.put("timeSlot", startOverlap.format(timeFormatter) + " - " + endOverlap.format(timeFormatter));
+                    String formattedSlot;
+                    if (startOverlap.toLocalDate().equals(endOverlap.toLocalDate())) {
+                        formattedSlot = startOverlap.format(timeFormatter) + " - " + endOverlap.format(timeFormatter);
+                    } else {
+                        formattedSlot = startOverlap.format(dateTimeFormatter) + " - " + endOverlap.format(dateTimeFormatter);
+                    }
+
+                    conflict.put("timeSlot", formattedSlot);
                     conflict.put("accountA", evA.getAccountName() + " (" + evA.getEmailAddress() + ")");
                     conflict.put("eventA", evA.getSummary());
                     conflict.put("accountB", evB.getAccountName() + " (" + evB.getEmailAddress() + ")");

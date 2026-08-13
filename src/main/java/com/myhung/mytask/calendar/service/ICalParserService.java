@@ -40,7 +40,11 @@ public class ICalParserService {
 
     public List<CalendarEvent> parseICSContent(String content, String accountName, String emailAddress) {
         List<CalendarEvent> events = new ArrayList<>();
-        String[] lines = content.split("\r?\n");
+        if (content == null || content.isBlank()) return events;
+
+        // RFC 5545 Line Unfolding: Remove newlines followed by space or tab
+        String unfolded = content.replaceAll("\r?\n[ \t]", "");
+        String[] lines = unfolded.split("\r?\n");
 
         boolean inEvent = false;
         String summary = null;
@@ -64,20 +68,33 @@ public class ICalParserService {
                 }
                 inEvent = false;
             } else if (inEvent) {
-                if (line.startsWith("SUMMARY:")) {
-                    summary = line.substring(8);
+                if (line.startsWith("SUMMARY:") || line.startsWith("SUMMARY;")) {
+                    int colon = line.indexOf(':');
+                    if (colon != -1) summary = unescapeICalText(line.substring(colon + 1));
                 } else if (line.startsWith("DTSTART")) {
                     start = parseICalDateTime(line);
                 } else if (line.startsWith("DTEND")) {
                     end = parseICalDateTime(line);
-                } else if (line.startsWith("DESCRIPTION:")) {
-                    description = line.substring(12);
-                } else if (line.startsWith("LOCATION:")) {
-                    location = line.substring(9);
+                } else if (line.startsWith("DESCRIPTION:") || line.startsWith("DESCRIPTION;")) {
+                    int colon = line.indexOf(':');
+                    if (colon != -1) description = unescapeICalText(line.substring(colon + 1));
+                } else if (line.startsWith("LOCATION:") || line.startsWith("LOCATION;")) {
+                    int colon = line.indexOf(':');
+                    if (colon != -1) location = unescapeICalText(line.substring(colon + 1));
                 }
             }
         }
         return events;
+    }
+
+    private String unescapeICalText(String text) {
+        if (text == null) return "";
+        return text.replace("\\,", ",")
+                   .replace("\\;", ";")
+                   .replace("\\n", " ")
+                   .replace("\\N", " ")
+                   .replace("\\\\", "\\")
+                   .trim();
     }
 
     private LocalDateTime parseICalDateTime(String line) {
