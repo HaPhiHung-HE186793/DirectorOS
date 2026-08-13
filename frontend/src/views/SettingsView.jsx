@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Send, Bell, CheckCircle2, ShieldCheck, HelpCircle, Smartphone, Mail, Save, Volume2, VolumeX, Mic, Calendar, Plus, Trash2, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Send, Bell, CheckCircle2, ShieldCheck, HelpCircle, Smartphone, Mail, Save, Volume2, VolumeX, Mic, Calendar, Plus, Trash2, RefreshCw, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 import { triggerTelegramTest, triggerEmailTest, fetchSettings, saveSettings, fetchCalendars, addCalendar, deleteCalendar, syncCalendars } from '../services/api';
 import { getAvailableLanguages, getAvailableVoices, speakText, stopSpeech } from '../utils/speech';
 
@@ -7,6 +7,7 @@ export default function SettingsView() {
   const [botToken, setBotToken] = useState('');
   const [chatId, setChatId] = useState('');
   const [enabled, setEnabled] = useState(true);
+  const [showBotToken, setShowBotToken] = useState(false);
 
   const [emailAddress, setEmailAddress] = useState('myhung.dev@example.com');
   const [emailEnabled, setEmailEnabled] = useState(true);
@@ -148,7 +149,16 @@ export default function SettingsView() {
   const handleTestNotification = async () => {
     setLoading(true);
     setTestResult(null);
-    const res = await triggerTelegramTest("🔔 [DirectorOS Test] Tin nhắn kiểm thử tính năng nhắc việc Thư ký AI thành công!");
+
+    // First auto-save current token and chat ID to backend database
+    const settingsMap = {
+      telegram_bot_token: botToken,
+      telegram_chat_id: chatId,
+      telegram_enabled: String(enabled)
+    };
+    await saveSettings(settingsMap);
+
+    const res = await triggerTelegramTest("🔔 [DirectorOS Test] Kính chào Giám đốc! Thử nghiệm kết nối Telegram Bot thành công!");
     setTestResult(res);
     setLoading(false);
   };
@@ -185,6 +195,82 @@ export default function SettingsView() {
           <CheckCircle2 className="w-4 h-4" /> Đã lưu cài đặt cấu hình hệ thống thành công!
         </div>
       )}
+
+      {/* Telegram Setup Card */}
+      <div className="glass-panel p-6 rounded-2xl border border-slate-800/80 space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center">
+            <Send className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="font-bold text-sm text-white">Telegram Bot Integration</h3>
+            <p className="text-xs text-slate-400">Tùy chỉnh Token & Chat ID trực tiếp không cần khởi động lại server</p>
+          </div>
+        </div>
+
+        <div className="space-y-3 pt-2">
+          <div>
+            <label className="text-xs font-semibold text-slate-300">TELEGRAM_BOT_TOKEN</label>
+            <div className="relative mt-1">
+              <input
+                type={showBotToken ? "text" : "password"}
+                value={botToken}
+                onChange={(e) => setBotToken(e.target.value)}
+                placeholder="7182910394:AAFx..."
+                className="w-full p-2.5 pr-10 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-sky-500"
+              />
+              <button
+                type="button"
+                onClick={() => setShowBotToken(!showBotToken)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition"
+              >
+                {showBotToken ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold text-slate-300">TELEGRAM_CHAT_ID</label>
+            <input
+              type="text"
+              value={chatId}
+              onChange={(e) => setChatId(e.target.value)}
+              placeholder="129038401"
+              className="w-full mt-1 p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-sky-500"
+            />
+          </div>
+
+          <div className="flex items-center gap-2 pt-1">
+            <input
+              type="checkbox"
+              id="enableBot"
+              checked={enabled}
+              onChange={(e) => setEnabled(e.target.checked)}
+              className="w-4 h-4 rounded text-sky-500 border-slate-800 bg-slate-900 cursor-pointer"
+            />
+            <label htmlFor="enableBot" className="text-xs font-semibold text-slate-300 cursor-pointer">
+              Bật tự động nhắc việc Telegram 07:00 & 21:00 hàng ngày
+            </label>
+          </div>
+        </div>
+
+        {/* Test Trigger Button */}
+        <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
+          <button
+            onClick={handleTestNotification}
+            disabled={loading}
+            className="px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs flex items-center gap-2 shadow-lg shadow-sky-600/20 transition-all active:scale-95 disabled:opacity-50"
+          >
+            <Send className="w-3.5 h-3.5" /> {loading ? "Đang lưu & gửi..." : "Gửi thử tin nhắn qua Telegram"}
+          </button>
+
+          {testResult && (
+            <span className={`text-xs flex items-center gap-1 font-semibold ${testResult.sent ? 'text-emerald-400' : 'text-rose-400'}`}>
+              <CheckCircle2 className="w-4 h-4" /> {testResult.sent ? "Gửi Telegram thành công!" : "Chưa gửi được (Kiểm tra Token/Bot)"}
+            </span>
+          )}
+        </div>
+      </div>
 
       {/* Multi-Account Email & Calendar Synchronization Card */}
       <div className="glass-panel p-6 rounded-2xl border border-indigo-500/30 bg-slate-900/90 space-y-4 relative overflow-hidden">
@@ -429,73 +515,6 @@ export default function SettingsView() {
               ? `Đã phát hiện ${filteredVoices.length} giọng đọc thích hợp trên thiết bị.`
               : 'Trình duyệt sẽ tự động điều chỉnh giọng đọc tối ưu.'}
           </span>
-        </div>
-      </div>
-
-      {/* Telegram Setup Card */}
-      <div className="glass-panel p-6 rounded-2xl border border-slate-800/80 space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center">
-            <Send className="w-5 h-5" />
-          </div>
-          <div>
-            <h3 className="font-bold text-sm text-white">Telegram Bot Integration</h3>
-            <p className="text-xs text-slate-400">Tùy chỉnh Token & Chat ID trực tiếp không cần khởi động lại server</p>
-          </div>
-        </div>
-
-        <div className="space-y-3 pt-2">
-          <div>
-            <label className="text-xs font-semibold text-slate-300">TELEGRAM_BOT_TOKEN</label>
-            <input
-              type="password"
-              value={botToken}
-              onChange={(e) => setBotToken(e.target.value)}
-              placeholder="7182910394:AAFx..."
-              className="w-full mt-1 p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-sky-500"
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold text-slate-300">TELEGRAM_CHAT_ID</label>
-            <input
-              type="text"
-              value={chatId}
-              onChange={(e) => setChatId(e.target.value)}
-              placeholder="129038401"
-              className="w-full mt-1 p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-sky-500"
-            />
-          </div>
-
-          <div className="flex items-center gap-2 pt-1">
-            <input
-              type="checkbox"
-              id="enableBot"
-              checked={enabled}
-              onChange={(e) => setEnabled(e.target.checked)}
-              className="w-4 h-4 rounded text-sky-500 border-slate-800 bg-slate-900 cursor-pointer"
-            />
-            <label htmlFor="enableBot" className="text-xs font-semibold text-slate-300 cursor-pointer">
-              Bật tự động nhắc việc Telegram 07:00 & 21:00 hàng ngày
-            </label>
-          </div>
-        </div>
-
-        {/* Test Trigger Button */}
-        <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
-          <button
-            onClick={handleTestNotification}
-            disabled={loading}
-            className="px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs flex items-center gap-2 shadow-lg shadow-sky-600/20 transition-all active:scale-95 disabled:opacity-50"
-          >
-            <Send className="w-3.5 h-3.5" /> {loading ? "Đang gửi..." : "Gửi thử tin nhắn qua Telegram"}
-          </button>
-
-          {testResult && (
-            <span className="text-xs text-emerald-400 flex items-center gap-1 font-semibold">
-              <CheckCircle2 className="w-4 h-4" /> Đã thử nghiệm Telegram! ({testResult.sent ? "Thành công" : "Mô phỏng"})
-            </span>
-          )}
         </div>
       </div>
 
