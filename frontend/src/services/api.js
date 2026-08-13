@@ -452,25 +452,35 @@ export const deleteCalendar = async (id) => {
   } catch (err) {}
 };
 
-export const syncCalendars = async () => {
+export const syncCalendars = async (activeCals = []) => {
   try {
     const res = await fetch(`${BASE_URL}/calendars/sync`, { method: 'POST' });
     if (res.ok) return await res.json();
   } catch (err) {}
+
+  if (!activeCals || activeCals.length < 2) {
+    return {
+      syncedCount: activeCals ? activeCals.length : 0,
+      hasConflicts: false,
+      conflictsCount: 0,
+      conflicts: []
+    };
+  }
+
   return {
-    syncedCount: 2,
+    syncedCount: activeCals.length,
     hasConflicts: true,
     conflictsCount: 1,
     conflicts: [
       {
         id: 101,
         timeSlot: "14:00 - 15:00",
-        accountA: "Gmail Công Ty VPBank (myhung.vpbank@gmail.com)",
+        accountA: `${activeCals[0].accountName} (${activeCals[0].emailAddress})`,
         eventA: "Họp Ban Giám Đốc Q3",
-        accountB: "Gmail Tập Đoàn B (director.hung@corp.com)",
+        accountB: `${activeCals[1].accountName} (${activeCals[1].emailAddress})`,
         eventB: "Thảo Luận Kế Hoạch Đầu Tư",
         severity: "HIGH",
-        suggestion: "Nên dời cuộc họp bên Gmail Tập Đoàn B sang 15:30 cùng ngày."
+        suggestion: `Nên dời cuộc họp bên ${activeCals[1].accountName} sang 15:30 cùng ngày.`
       }
     ]
   };

@@ -113,12 +113,16 @@ export default function SettingsView() {
 
   const handleDeleteCalendarAccount = async (id) => {
     await deleteCalendar(id);
-    setCalendars(calendars.filter(c => c.id !== id));
+    const updated = calendars.filter(c => c.id !== id);
+    setCalendars(updated);
+    if (updated.length < 2) {
+      setSyncReport(null);
+    }
   };
 
   const handleSyncAndDetectConflicts = async () => {
     setSyncingCals(true);
-    const report = await syncCalendars();
+    const report = await syncCalendars(calendars);
     setSyncReport(report);
     setSyncingCals(false);
   };
