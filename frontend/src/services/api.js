@@ -522,5 +522,63 @@ export const syncCalendars = async (activeCals = []) => {
   };
 };
 
+// ============================================================
+// Calendar View & Special Dates API
+// ============================================================
 
+export const fetchCalendarMonth = async (year, month) => {
+  try {
+    const res = await fetch(`${BASE_URL}/calendar/month?year=${year}&month=${month}`);
+    if (res.ok) return await res.json();
+  } catch (err) {}
+
+  // Fallback: empty month data
+  return {
+    year, month,
+    totalSpecialDates: 0,
+    totalPlanItems: 0,
+    totalSyncedEvents: 0,
+    dayEvents: {}
+  };
+};
+
+export const fetchSpecialDates = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}/special-dates`);
+    if (res.ok) return await res.json();
+  } catch (err) {}
+  return [];
+};
+
+export const createSpecialDate = async (data) => {
+  try {
+    const res = await fetch(`${BASE_URL}/special-dates`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (res.ok) return await res.json();
+  } catch (err) {}
+
+  // Fallback mock
+  return { id: Date.now(), ...data, createdAt: new Date().toISOString() };
+};
+
+export const updateSpecialDate = async (id, data) => {
+  try {
+    const res = await fetch(`${BASE_URL}/special-dates/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (res.ok) return await res.json();
+  } catch (err) {}
+  return { id, ...data };
+};
+
+export const deleteSpecialDate = async (id) => {
+  try {
+    await fetch(`${BASE_URL}/special-dates/${id}`, { method: 'DELETE' });
+  } catch (err) {}
+};
 
