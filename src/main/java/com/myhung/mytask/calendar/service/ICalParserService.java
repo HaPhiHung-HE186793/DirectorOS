@@ -46,9 +46,16 @@ public class ICalParserService {
         }
 
         try {
-            String icsContent = restTemplate.getForObject(url, String.class);
-            if (icsContent != null && !icsContent.isBlank()) {
-                events = parseICSContent(icsContent, accountName, emailAddress);
+            java.net.URI uri = java.net.URI.create(url.trim());
+            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+            headers.set("Accept", "text/calendar, text/plain, */*");
+
+            org.springframework.http.HttpEntity<Void> entity = new org.springframework.http.HttpEntity<>(headers);
+            org.springframework.http.ResponseEntity<String> response = restTemplate.exchange(uri, org.springframework.http.HttpMethod.GET, entity, String.class);
+
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null && !response.getBody().isBlank()) {
+                events = parseICSContent(response.getBody(), accountName, emailAddress);
                 urlCache.put(url, new CacheEntry(events, now));
             }
         } catch (Exception e) {
