@@ -488,6 +488,27 @@ export const deleteCalendar = async (id) => {
   saveStoredCalendars(mockCalendars);
 };
 
+export const updateCalendar = async (id, updatedData) => {
+  try {
+    const res = await fetch(`${BASE_URL}/calendars/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedData)
+    });
+    if (res.ok) {
+      const data = await res.json();
+      mockCalendars = mockCalendars.map(c => (c.id === id || String(c.id) === String(id)) ? data : c);
+      saveStoredCalendars(mockCalendars);
+      return data;
+    }
+  } catch (err) {}
+
+  const updated = { id, ...updatedData };
+  mockCalendars = mockCalendars.map(c => (c.id === id || String(c.id) === String(id)) ? updated : c);
+  saveStoredCalendars(mockCalendars);
+  return updated;
+};
+
 export const syncCalendars = async (activeCals = []) => {
   try {
     const res = await fetch(`${BASE_URL}/calendars/sync`, { method: 'POST' });

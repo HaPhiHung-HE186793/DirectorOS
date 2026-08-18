@@ -1,10 +1,11 @@
 import React from 'react';
-import { Plus, Lock } from 'lucide-react';
+import { Plus, Pencil, Lock } from 'lucide-react';
 
 export const AddCalendarModal = ({
   show,
   onClose,
   onSubmit,
+  isEditing = false,
   newAccName,
   setNewAccName,
   newAccEmail,
@@ -22,7 +23,15 @@ export const AddCalendarModal = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
       <div className="glass-panel w-full max-w-md p-6 rounded-2xl border border-indigo-500/30 bg-slate-900 shadow-2xl space-y-4">
         <h3 className="font-extrabold text-sm text-white flex items-center gap-2">
-          <Plus className="w-4 h-4 text-emerald-400" /> Kết Nối Tài Khoản Email / Lịch Mới
+          {isEditing ? (
+            <>
+              <Pencil className="w-4 h-4 text-indigo-400" /> Chỉnh Sửa Kết Nối Email / Lịch
+            </>
+          ) : (
+            <>
+              <Plus className="w-4 h-4 text-emerald-400" /> Kết Nối Tài Khoản Email / Lịch Mới
+            </>
+          )}
         </h3>
 
         <form onSubmit={onSubmit} className="space-y-3">
@@ -134,9 +143,9 @@ export const AddCalendarModal = ({
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md shadow-emerald-600/20"
+              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/20"
             >
-              Kết Nối Lịch
+              {isEditing ? 'Lưu Thay Đổi' : 'Kết Nối Lịch'}
             </button>
           </div>
         </form>

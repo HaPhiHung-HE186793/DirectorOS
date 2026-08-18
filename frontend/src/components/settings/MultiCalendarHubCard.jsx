@@ -1,9 +1,10 @@
 import React from 'react';
-import { Calendar, RefreshCw, Plus, Trash2, AlertTriangle } from 'lucide-react';
+import { Calendar, RefreshCw, Plus, Trash2, Pencil, AlertTriangle } from 'lucide-react';
 
 export const MultiCalendarHubCard = ({
   calendars,
   onOpenAddModal,
+  onOpenEditModal,
   onDeleteCalendar,
   onSyncCalendars,
   syncing,
@@ -66,16 +67,23 @@ export const MultiCalendarHubCard = ({
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                <span className="text-[10px] text-emerald-400 bg-emerald-950/60 border border-emerald-500/20 px-2 py-0.5 rounded-full font-semibold">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-emerald-400 bg-emerald-950/60 border border-emerald-500/20 px-2 py-0.5 rounded-full font-semibold mr-1">
                   ● Đã kết nối
                 </span>
                 <button
+                  onClick={() => onOpenEditModal && onOpenEditModal(cal)}
+                  className="text-slate-400 hover:text-indigo-300 bg-slate-800 hover:bg-indigo-600/20 p-1.5 rounded-lg border border-slate-700 hover:border-indigo-500/40 transition"
+                  title="Chỉnh sửa cấu hình kết nối này"
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                </button>
+                <button
                   onClick={() => onDeleteCalendar(cal.id)}
-                  className="text-slate-500 hover:text-rose-400 p-1.5 transition"
+                  className="text-slate-400 hover:text-rose-400 bg-slate-800 hover:bg-rose-600/20 p-1.5 rounded-lg border border-slate-700 hover:border-rose-500/40 transition"
                   title="Xóa kết nối Email này"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
