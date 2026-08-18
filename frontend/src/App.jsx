@@ -32,6 +32,7 @@ export default function App() {
   const [calendarYear, setCalendarYear] = useState(now.getFullYear());
   const [calendarMonth, setCalendarMonth] = useState(now.getMonth() + 1);
   const [calendarData, setCalendarData] = useState(null);
+  const [specialDates, setSpecialDates] = useState([]);
 
   const loadData = async () => {
     const tList = await fetchTasks();
@@ -42,11 +43,16 @@ export default function App() {
 
     const candidates = await fetchOverdueTasks();
     setCandidateTasks(candidates.length > 0 ? candidates : tList.filter(t => t.status !== 'COMPLETED' && t.status !== 'DONE'));
+
+    const sDates = await fetchSpecialDates();
+    setSpecialDates(sDates);
   };
 
   const loadCalendarData = async (year, month) => {
     const data = await fetchCalendarMonth(year, month);
-    setCalendarData(data);
+    if (data && data.year === year && data.month === month) {
+      setCalendarData(data);
+    }
   };
 
   useEffect(() => {
@@ -135,6 +141,7 @@ export default function App() {
           {activeTab === 'calendar' && (
             <CalendarView
               calendarData={calendarData}
+              specialDates={specialDates}
               onMonthChange={handleMonthChange}
               onCreateSpecialDate={handleCreateSpecialDate}
               onDeleteSpecialDate={handleDeleteSpecialDate}

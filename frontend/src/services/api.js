@@ -616,9 +616,27 @@ export const fetchCalendarMonth = async (year, month) => {
 export const fetchSpecialDates = async () => {
   try {
     const res = await fetch(`${BASE_URL}/special-dates`);
-    if (res.ok) return await res.json();
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) return data;
+    }
   } catch (err) {}
-  return [];
+  return [
+    { id: 1, title: 'Tết Dương lịch', eventDate: '2026-01-01', eventType: 'HOLIDAY', color: '#ef4444', icon: '🎉' },
+    { id: 2, title: 'Ngày Valentine', eventDate: '2026-02-14', eventType: 'ANNIVERSARY', color: '#ec4899', icon: '❤️' },
+    { id: 3, title: 'Ngày Quốc tế Phụ nữ', eventDate: '2026-03-08', eventType: 'ANNIVERSARY', color: '#ec4899', icon: '🌷' },
+    { id: 4, title: 'Giỗ Tổ Hùng Vương', eventDate: '2026-04-08', eventType: 'HOLIDAY', color: '#ef4444', icon: '🏛️' },
+    { id: 5, title: 'Ngày Giải phóng miền Nam', eventDate: '2026-04-30', eventType: 'HOLIDAY', color: '#ef4444', icon: '🇻🇳' },
+    { id: 6, title: 'Ngày Quốc tế Lao động', eventDate: '2026-05-01', eventType: 'HOLIDAY', color: '#ef4444', icon: '💪' },
+    { id: 7, title: 'Quốc tế Thiếu nhi', eventDate: '2026-06-01', eventType: 'HOLIDAY', color: '#f59e0b', icon: '🎈' },
+    { id: 8, title: 'Cách mạng Tháng Tám', eventDate: '2026-08-19', eventType: 'HOLIDAY', color: '#ef4444', icon: '🇻🇳' },
+    { id: 9, title: 'Ngày Công an Nhân dân', eventDate: '2026-08-19', eventType: 'ANNIVERSARY', color: '#3b82f6', icon: '🛡️' },
+    { id: 10, title: 'Lễ Vu Lan (Rằm tháng 7)', eventDate: '2026-08-27', eventType: 'HOLIDAY', color: '#ec4899', icon: '🪷' },
+    { id: 11, title: 'Ngày Quốc khánh', eventDate: '2026-09-02', eventType: 'HOLIDAY', color: '#ef4444', icon: '🇻🇳' },
+    { id: 12, title: 'Ngày Phụ nữ Việt Nam', eventDate: '2026-10-20', eventType: 'ANNIVERSARY', color: '#ec4899', icon: '🌸' },
+    { id: 13, title: 'Ngày Nhà giáo Việt Nam', eventDate: '2026-11-20', eventType: 'ANNIVERSARY', color: '#8b5cf6', icon: '📚' },
+    { id: 14, title: 'Giáng sinh', eventDate: '2026-12-25', eventType: 'HOLIDAY', color: '#22c55e', icon: '🎄' }
+  ];
 };
 
 export const createSpecialDate = async (data) => {

@@ -27,8 +27,97 @@ export default function CalendarView({
     [currentYear, currentMonth]
   );
 
-  // Build events map from calendarData
-  const dayEventsMap = calendarData?.dayEvents || {};
+  // Auto-sync selectedDate to current month when changing months
+  React.useEffect(() => {
+    const now = new Date();
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+    if (selectedDate) {
+      const parts = selectedDate.split('-');
+      if (parts.length === 3) {
+        const selY = parseInt(parts[0], 10);
+        const selM = parseInt(parts[1], 10);
+        if (selY !== currentYear || selM !== currentMonth) {
+          if (now.getFullYear() === currentYear && (now.getMonth() + 1) === currentMonth) {
+            setSelectedDate(todayStr);
+          } else {
+            setSelectedDate(`${currentYear}-${String(currentMonth).padStart(2, '0')}-01`);
+          }
+        }
+      }
+    } else {
+      if (now.getFullYear() === currentYear && (now.getMonth() + 1) === currentMonth) {
+        setSelectedDate(todayStr);
+      } else {
+        setSelectedDate(`${currentYear}-${String(currentMonth).padStart(2, '0')}-01`);
+      }
+    }
+  }, [currentYear, currentMonth]);
+
+  // Build aggregated events map (Instant local render + backend merge, zero delay)
+  const dayEventsMap = useMemo(() => {
+    const map = {};
+
+    // 1. Immediately map all specialDates from props for currentYear & currentMonth (<1ms)
+    if (Array.isArray(specialDates)) {
+      specialDates.forEach((sd) => {
+        if (!sd.eventDate) return;
+        const dateStr = typeof sd.eventDate === 'string' ? sd.eventDate : '';
+        const parts = dateStr.split('-');
+        if (parts.length < 3) return;
+        const sdMonth = parseInt(parts[1], 10);
+        const sdDay = parseInt(parts[2], 10);
+
+        if (sdMonth === currentMonth) {
+          const fullDate = `${currentYear}-${String(sdMonth).padStart(2, '0')}-${String(sdDay).padStart(2, '0')}`;
+          if (!map[fullDate]) map[fullDate] = [];
+          map[fullDate].push({
+            id: `special-${sd.id}`,
+            specialDateId: sd.id,
+            date: fullDate,
+            title: sd.title,
+            type: 'SPECIAL',
+            eventType: sd.eventType,
+            color: sd.color,
+            icon: sd.icon,
+            note: sd.note,
+          });
+        }
+      });
+    }
+
+    // 2. Merge backend calendarData if it matches currentYear & currentMonth
+    if (calendarData && calendarData.year === currentYear && calendarData.month === currentMonth && calendarData.dayEvents) {
+      Object.entries(calendarData.dayEvents).forEach(([dateKey, events]) => {
+        if (!map[dateKey]) map[dateKey] = [];
+        events.forEach((ev) => {
+          if (ev.type === 'SPECIAL') {
+            const exists = map[dateKey].some((e) => e.title === ev.title);
+            if (!exists) map[dateKey].push(ev);
+          } else {
+            map[dateKey].push(ev);
+          }
+        });
+      });
+    }
+
+    return map;
+  }, [currentYear, currentMonth, specialDates, calendarData]);
+
+  // Compute total counts for summary bar dynamically
+  const totals = useMemo(() => {
+    let specialCount = 0;
+    let planCount = 0;
+    let syncedCount = 0;
+    Object.values(dayEventsMap).forEach((events) => {
+      events.forEach((ev) => {
+        if (ev.type === 'SPECIAL') specialCount++;
+        else if (ev.type === 'PLAN') planCount++;
+        else if (ev.type === 'SYNCED') syncedCount++;
+      });
+    });
+    return { specialCount, planCount, syncedCount };
+  }, [dayEventsMap]);
 
   const handlePrevMonth = () => {
     const newMonth = currentMonth === 1 ? 12 : currentMonth - 1;
@@ -55,26 +144,6 @@ export default function CalendarView({
   const handleAddEventOnDate = (dateStr) => {
     setAddModalDate(dateStr);
     setShowAddModal(true);
-  };
-
-  const getEventIndicators = (dateStr) => {
-    const events = dayEventsMap[dateStr] || [];
-    const types = new Set(events.map(e => e.type));
-    return {
-      hasSpecial: types.has('SPECIAL'),
-      hasPlan: types.has('PLAN'),
-      hasSynced: types.has('SYNCED'),
-      count: events.length,
-    };
-  };
-
-  const getEventTypeIcon = (eventType) => {
-    switch (eventType) {
-      case 'BIRTHDAY': return <Cake className="w-3 h-3" />;
-      case 'HOLIDAY': return <Flag className="w-3 h-3" />;
-      case 'ANNIVERSARY': return <Heart className="w-3 h-3" />;
-      default: return <Star className="w-3 h-3" />;
-    }
   };
 
   return (
@@ -130,22 +199,20 @@ export default function CalendarView({
       </div>
 
       {/* Summary bar */}
-      {calendarData && (
-        <div className="flex items-center gap-3 sm:gap-4 px-2 text-[11px] sm:text-xs text-slate-400 flex-wrap">
-          <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-rose-400"></span>
-            {calendarData.totalSpecialDates || 0} ngày đặc biệt
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-blue-400"></span>
-            {calendarData.totalPlanItems || 0} kế hoạch
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-purple-400"></span>
-            {calendarData.totalSyncedEvents || 0} lịch email
-          </span>
-        </div>
-      )}
+      <div className="flex items-center gap-3 sm:gap-4 px-2 text-[11px] sm:text-xs text-slate-400 flex-wrap">
+        <span className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-rose-400"></span>
+          {totals.specialCount} ngày đặc biệt
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-blue-400"></span>
+          {totals.planCount} kế hoạch
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-purple-400"></span>
+          {totals.syncedCount} lịch email
+        </span>
+      </div>
 
       <div className="flex flex-col lg:flex-row gap-4">
         {/* Calendar Grid */}
