@@ -10,7 +10,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/calendars")
-@CrossOrigin(origins = "*")
 public class ConnectedCalendarController {
 
     private final ConnectedCalendarService service;
