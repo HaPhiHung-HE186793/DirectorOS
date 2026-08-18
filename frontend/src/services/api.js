@@ -423,6 +423,11 @@ export const saveSettings = async (settingsMap) => {
   return { success: true, message: "Đã lưu cấu hình (Mô phỏng local)." };
 };
 
+const DEFAULT_SEED_CALENDARS = [
+  { id: 1, accountName: 'Gmail Công Ty A', emailAddress: 'myhung.executive@company-a.com', calendarType: 'GMAIL', colorTag: '#3b82f6', syncEnabled: true },
+  { id: 2, accountName: 'Gmail Công Ty B', emailAddress: 'director.hung@company-b.com', calendarType: 'GMAIL', colorTag: '#8b5cf6', syncEnabled: true }
+];
+
 const getStoredCalendars = () => {
   if (typeof window !== 'undefined' && window.localStorage) {
     const saved = localStorage.getItem('directoros_connected_calendars');
@@ -433,10 +438,7 @@ const getStoredCalendars = () => {
       } catch (e) {}
     }
   }
-  return [
-    { id: 1, accountName: 'Gmail Công Ty VPBank', emailAddress: 'myhung.vpbank@gmail.com', calendarType: 'GMAIL', colorTag: '#3b82f6', syncEnabled: true },
-    { id: 2, accountName: 'Gmail Tập Đoàn B', emailAddress: 'director.hung@corp.com', calendarType: 'GMAIL', colorTag: '#8b5cf6', syncEnabled: true }
-  ];
+  return DEFAULT_SEED_CALENDARS;
 };
 
 const saveStoredCalendars = (cals) => {
@@ -466,7 +468,7 @@ export const fetchCalendars = async () => {
     const res = await fetch(`${BASE_URL}/calendars`);
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data)) {
+      if (Array.isArray(data) && data.length > 0) {
         const normalized = data.map(normalizeCalendar);
         mockCalendars = normalized;
         saveStoredCalendars(normalized);
@@ -476,7 +478,7 @@ export const fetchCalendars = async () => {
   } catch (err) {
     console.warn("Backend /api/calendars unreachable, fallback to cached state:", err);
   }
-  return mockCalendars;
+  return mockCalendars && mockCalendars.length > 0 ? mockCalendars : DEFAULT_SEED_CALENDARS;
 };
 
 export const addCalendar = async (calendarData) => {
