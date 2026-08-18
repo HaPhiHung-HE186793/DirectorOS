@@ -482,69 +482,49 @@ export const fetchCalendars = async () => {
 };
 
 export const addCalendar = async (calendarData) => {
-  try {
-    const res = await fetch(`${BASE_URL}/calendars`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(calendarData)
-    });
-    if (res.ok) {
-      const data = await res.json();
-      const normalized = normalizeCalendar(data) || { ...calendarData, id: Date.now() };
-      mockCalendars = mockCalendars.filter(c => c.id !== normalized.id);
-      mockCalendars.push(normalized);
-      saveStoredCalendars(mockCalendars);
-      return normalized;
-    } else {
-      console.error("Backend API /api/calendars POST failed:", res.status, res.statusText);
-    }
-  } catch (err) {
-    console.error("Network error adding calendar to backend DB:", err);
+  const res = await fetch(`${BASE_URL}/calendars`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(calendarData)
+  });
+  if (res.ok) {
+    const data = await res.json();
+    const normalized = normalizeCalendar(data) || { ...calendarData, id: Date.now() };
+    mockCalendars = mockCalendars.filter(c => c.id !== normalized.id);
+    mockCalendars.push(normalized);
+    saveStoredCalendars(mockCalendars);
+    return normalized;
   }
-
-  const newCal = normalizeCalendar({ ...calendarData, id: Date.now() });
-  mockCalendars.push(newCal);
-  saveStoredCalendars(mockCalendars);
-  return newCal;
+  const errText = await res.text().catch(() => '');
+  throw new Error(`Server returned ${res.status} ${res.statusText}: ${errText}`);
 };
 
 export const deleteCalendar = async (id) => {
-  try {
-    const res = await fetch(`${BASE_URL}/calendars/${id}`, { method: 'DELETE' });
-    if (!res.ok) {
-      console.error("Backend API /api/calendars DELETE failed:", res.status, res.statusText);
-    }
-  } catch (err) {
-    console.error("Network error deleting calendar from backend DB:", err);
+  const res = await fetch(`${BASE_URL}/calendars/${id}`, { method: 'DELETE' });
+  if (res.ok) {
+    mockCalendars = mockCalendars.filter(c => c.id !== id && String(c.id) !== String(id));
+    saveStoredCalendars(mockCalendars);
+    return true;
   }
-  mockCalendars = mockCalendars.filter(c => c.id !== id && String(c.id) !== String(id));
-  saveStoredCalendars(mockCalendars);
+  const errText = await res.text().catch(() => '');
+  throw new Error(`Server returned ${res.status} ${res.statusText}: ${errText}`);
 };
 
 export const updateCalendar = async (id, updatedData) => {
-  try {
-    const res = await fetch(`${BASE_URL}/calendars/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updatedData)
-    });
-    if (res.ok) {
-      const data = await res.json();
-      const normalized = normalizeCalendar(data) || { id, ...updatedData };
-      mockCalendars = mockCalendars.map(c => (c.id === id || String(c.id) === String(id)) ? normalized : c);
-      saveStoredCalendars(mockCalendars);
-      return normalized;
-    } else {
-      console.error("Backend API /api/calendars PUT failed:", res.status, res.statusText);
-    }
-  } catch (err) {
-    console.error("Network error updating calendar in backend DB:", err);
+  const res = await fetch(`${BASE_URL}/calendars/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updatedData)
+  });
+  if (res.ok) {
+    const data = await res.json();
+    const normalized = normalizeCalendar(data) || { id, ...updatedData };
+    mockCalendars = mockCalendars.map(c => (c.id === id || String(c.id) === String(id)) ? normalized : c);
+    saveStoredCalendars(mockCalendars);
+    return normalized;
   }
-
-  const updated = normalizeCalendar({ id, ...updatedData });
-  mockCalendars = mockCalendars.map(c => (c.id === id || String(c.id) === String(id)) ? updated : c);
-  saveStoredCalendars(mockCalendars);
-  return updated;
+  const errText = await res.text().catch(() => '');
+  throw new Error(`Server returned ${res.status} ${res.statusText}: ${errText}`);
 };
 
 export const syncCalendars = async (activeCals = []) => {

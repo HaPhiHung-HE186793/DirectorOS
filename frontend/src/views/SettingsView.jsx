@@ -179,27 +179,34 @@ export const SettingsView = () => {
       syncEnabled: true
     };
 
-    if (editingCalId) {
-      const updated = await updateCalendar(editingCalId, payload);
-      setCalendars(calendars.map(c => (c.id === editingCalId || String(c.id) === String(editingCalId)) ? updated : c));
-    } else {
-      const newCal = await addCalendar(payload);
-      setCalendars([...calendars, newCal]);
+    try {
+      if (editingCalId) {
+        const updated = await updateCalendar(editingCalId, payload);
+        setCalendars(calendars.map(c => (c.id === editingCalId || String(c.id) === String(editingCalId)) ? updated : c));
+      } else {
+        const newCal = await addCalendar(payload);
+        setCalendars([...calendars, newCal]);
+      }
+      setNewAccName('');
+      setNewAccEmail('');
+      setNewAccSyncUrl('');
+      setEditingCalId(null);
+      setShowAddCalModal(false);
+    } catch (err) {
+      alert("❌ Lỗi lưu dữ liệu: Không thể lưu vào Database Server! Chi tiết lỗi: " + err.message);
     }
-
-    setNewAccName('');
-    setNewAccEmail('');
-    setNewAccSyncUrl('');
-    setEditingCalId(null);
-    setShowAddCalModal(false);
   };
 
   const handleDeleteCalendarAccount = async (id) => {
-    await deleteCalendar(id);
-    const updated = calendars.filter((c) => c.id !== id);
-    setCalendars(updated);
-    if (updated.length < 2) {
-      setSyncReport(null);
+    try {
+      await deleteCalendar(id);
+      const updated = calendars.filter((c) => c.id !== id);
+      setCalendars(updated);
+      if (updated.length < 2) {
+        setSyncReport(null);
+      }
+    } catch (err) {
+      alert("❌ Lỗi xóa dữ liệu: Không thể xóa khỏi Database Server! Chi tiết lỗi: " + err.message);
     }
   };
 
