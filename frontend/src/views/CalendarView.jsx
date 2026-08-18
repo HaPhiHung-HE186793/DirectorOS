@@ -205,31 +205,31 @@ export default function CalendarView({
       </div>
 
       {/* Summary bar */}
-      <div className="flex items-center gap-3 sm:gap-4 px-2 text-[11px] sm:text-xs text-slate-400 flex-wrap">
-        <span className="flex items-center gap-1.5">
+      <div className="flex items-center justify-between sm:justify-start gap-2 sm:gap-4 px-3 py-2 bg-slate-900/60 rounded-xl border border-slate-800/60 text-[11px] sm:text-xs text-slate-300">
+        <span className="flex items-center gap-1.5 shrink-0">
           <span className="w-2 h-2 rounded-full bg-rose-400"></span>
-          {totals.specialCount} ngày đặc biệt
+          {totals.specialCount} <span className="hidden xs:inline">ngày đặc biệt</span><span className="xs:hidden">đặc biệt</span>
         </span>
-        <span className="flex items-center gap-1.5">
+        <span className="flex items-center gap-1.5 shrink-0">
           <span className="w-2 h-2 rounded-full bg-blue-400"></span>
           {totals.planCount} kế hoạch
         </span>
-        <span className="flex items-center gap-1.5">
+        <span className="flex items-center gap-1.5 shrink-0">
           <span className="w-2 h-2 rounded-full bg-purple-400"></span>
-          {totals.syncedCount} lịch email
+          {totals.syncedCount} <span className="hidden xs:inline">lịch email</span><span className="xs:hidden">email</span>
         </span>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-4">
         {/* Calendar Grid */}
-        <div className="flex-1">
-          <div className="bg-slate-900/60 rounded-2xl border border-slate-800/80 overflow-hidden">
+        <div className="flex-1 min-w-0">
+          <div className="bg-slate-900/60 rounded-2xl border border-slate-800/80 overflow-hidden shadow-xl">
             {/* Weekday Header */}
-            <div className="grid grid-cols-7 bg-slate-900/80 border-b border-slate-800/60">
+            <div className="grid grid-cols-7 bg-slate-900/90 border-b border-slate-800/60">
               {WEEKDAY_NAMES_VI.map((day, i) => (
                 <div
                   key={day}
-                  className={`py-2 text-center text-[11px] sm:text-xs font-bold tracking-wider ${
+                  className={`py-2 text-center text-[10px] sm:text-xs font-extrabold tracking-wider ${
                     i === 6 ? 'text-rose-400' : 'text-slate-400'
                   }`}
                 >
@@ -239,7 +239,7 @@ export default function CalendarView({
             </div>
 
             {/* Days Grid */}
-            <div className="grid grid-cols-7">
+            <div className="grid grid-cols-7 border-collapse">
               {gridDays.map((dayObj, idx) => {
                 const dayEvents = dayEventsMap[dayObj.date] || [];
                 const isSelected = selectedDate === dayObj.date;
@@ -249,22 +249,22 @@ export default function CalendarView({
                   <button
                     key={dayObj.date}
                     onClick={() => handleDayClick(dayObj)}
-                    className={`relative min-h-[70px] sm:min-h-[84px] lg:min-h-[92px] p-1 sm:p-1.5 border-b border-r border-slate-800/40 transition-all duration-150 text-left group flex flex-col justify-between
-                      ${!dayObj.isCurrentMonth ? 'opacity-30' : ''}
+                    className={`relative min-h-[64px] sm:min-h-[84px] lg:min-h-[92px] p-1 sm:p-1.5 border-b border-r border-slate-800/40 transition-all duration-150 text-left group flex flex-col justify-between overflow-hidden max-w-full min-w-0
+                      ${!dayObj.isCurrentMonth ? 'opacity-25' : ''}
                       ${dayObj.isToday ? 'bg-indigo-600/15 border-indigo-500/40' : 'hover:bg-slate-800/50'}
                       ${isSelected ? 'bg-amber-500/10 ring-2 ring-amber-500/60 z-10 rounded-lg shadow-lg shadow-amber-500/10' : ''}
                     `}
                   >
-                    <div>
+                    <div className="w-full min-w-0 overflow-hidden">
                       {/* Top Header: Solar Date & Lunar Date */}
-                      <div className="flex items-baseline justify-between gap-1">
-                        <div className={`text-sm sm:text-base lg:text-lg font-extrabold leading-none
+                      <div className="flex items-baseline justify-between gap-0.5 w-full min-w-0">
+                        <div className={`text-xs sm:text-base lg:text-lg font-extrabold leading-none shrink-0
                           ${dayObj.isToday ? 'text-indigo-300' : isSunday ? 'text-rose-400' : 'text-slate-100'}
                         `}>
                           {dayObj.day}
                         </div>
 
-                        <div className={`text-[9px] sm:text-[10px] leading-none font-medium truncate ${
+                        <div className={`text-[8px] sm:text-[10px] leading-none font-medium truncate min-w-0 ${
                           dayObj.isLunarNewMonth ? 'text-amber-400 font-bold' : 'text-slate-500'
                         }`}>
                           {dayObj.isLunarNewMonth ? `${dayObj.lunarDay}/${dayObj.lunarMonth}` : dayObj.lunar}
@@ -277,9 +277,9 @@ export default function CalendarView({
                       )}
                     </div>
 
-                    {/* Event badge chips (Render title & icon directly on calendar cell) */}
+                    {/* Event badge chips (Strictly contained inside day cell, max-w-full overflow-hidden) */}
                     {dayObj.isCurrentMonth && dayEvents.length > 0 && (
-                      <div className="mt-1 space-y-1 overflow-hidden">
+                      <div className="mt-0.5 space-y-0.5 w-full max-w-full min-w-0 overflow-hidden">
                         {dayEvents.slice(0, 2).map((ev, i) => {
                           if (ev.type === 'SPECIAL') {
                             const isBirthday = ev.eventType === 'BIRTHDAY';
@@ -293,11 +293,11 @@ export default function CalendarView({
                             return (
                               <div
                                 key={ev.id || i}
-                                className={`px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-bold border truncate flex items-center gap-1 shadow-xs ${chipStyle}`}
+                                className={`px-1 py-[1px] rounded text-[8px] sm:text-[10px] font-extrabold border leading-tight truncate flex items-center gap-0.5 shadow-xs w-full max-w-full min-w-0 overflow-hidden ${chipStyle}`}
                                 title={ev.title}
                               >
-                                <span className="shrink-0 text-xs">{ev.icon || (isBirthday ? '🎂' : '📌')}</span>
-                                <span className="truncate">{ev.title}</span>
+                                <span className="shrink-0 text-[9px] sm:text-xs">{ev.icon || (isBirthday ? '🎂' : '📌')}</span>
+                                <span className="truncate min-w-0 flex-1">{ev.title}</span>
                               </div>
                             );
                           }
@@ -305,11 +305,11 @@ export default function CalendarView({
                             return (
                               <div
                                 key={ev.id || i}
-                                className="px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/40 truncate flex items-center gap-1 shadow-xs"
+                                className="px-1 py-[1px] rounded text-[8px] sm:text-[10px] font-bold leading-tight bg-blue-500/20 text-blue-300 border border-blue-500/40 truncate flex items-center gap-0.5 shadow-xs w-full max-w-full min-w-0 overflow-hidden"
                                 title={ev.title}
                               >
-                                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
-                                <span className="truncate">{ev.title}</span>
+                                <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-blue-400 shrink-0" />
+                                <span className="truncate min-w-0 flex-1">{ev.title}</span>
                               </div>
                             );
                           }
@@ -317,11 +317,11 @@ export default function CalendarView({
                             return (
                               <div
                                 key={ev.id || i}
-                                className="px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/40 truncate flex items-center gap-1 shadow-xs"
+                                className="px-1 py-[1px] rounded text-[8px] sm:text-[10px] font-bold leading-tight bg-purple-500/20 text-purple-300 border border-purple-500/40 truncate flex items-center gap-0.5 shadow-xs w-full max-w-full min-w-0 overflow-hidden"
                                 title={ev.title}
                               >
-                                <span className="w-1.5 h-1.5 rounded-full bg-purple-400 shrink-0" />
-                                <span className="truncate">{ev.title}</span>
+                                <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-purple-400 shrink-0" />
+                                <span className="truncate min-w-0 flex-1">{ev.title}</span>
                               </div>
                             );
                           }
@@ -329,8 +329,8 @@ export default function CalendarView({
                         })}
 
                         {dayEvents.length > 2 && (
-                          <div className="text-[8px] font-extrabold text-amber-400/90 pl-0.5">
-                            +{dayEvents.length - 2} sự kiện khác
+                          <div className="text-[7px] sm:text-[8px] font-black text-amber-400/90 pl-0.5 truncate min-w-0">
+                            +{dayEvents.length - 2} sự kiện
                           </div>
                         )}
                       </div>
