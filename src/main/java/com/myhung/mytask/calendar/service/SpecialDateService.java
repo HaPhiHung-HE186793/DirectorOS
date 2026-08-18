@@ -22,6 +22,51 @@ public class SpecialDateService {
         this.repository = repository;
     }
 
+    @jakarta.annotation.PostConstruct
+    public void seedAugustSpecialDatesIfMissing() {
+        try {
+            List<SpecialDate> all = repository.findAll();
+            boolean hasAugust = all.stream().anyMatch(sd -> sd.getEventDate() != null && sd.getEventDate().getMonthValue() == 8);
+            if (!hasAugust) {
+                log.info("Seeding August special dates into database...");
+                SpecialDate cm8 = new SpecialDate();
+                cm8.setTitle("Cách mạng Tháng Tám");
+                cm8.setEventDate(LocalDate.of(2026, 8, 19));
+                cm8.setEventType("HOLIDAY");
+                cm8.setRecurringYearly(true);
+                cm8.setColor("#ef4444");
+                cm8.setIcon("🇻🇳");
+                cm8.setNote("Kỷ niệm Ngày Cách mạng Tháng Tám thành công (19/08)");
+                cm8.setCreatedAt(LocalDateTime.now());
+                repository.save(cm8);
+
+                SpecialDate cand = new SpecialDate();
+                cand.setTitle("Ngày Công an Nhân dân");
+                cand.setEventDate(LocalDate.of(2026, 8, 19));
+                cand.setEventType("ANNIVERSARY");
+                cand.setRecurringYearly(true);
+                cand.setColor("#3b82f6");
+                cand.setIcon("🛡️");
+                cand.setNote("Ngày truyền thống Công an Nhân dân Việt Nam");
+                cand.setCreatedAt(LocalDateTime.now());
+                repository.save(cand);
+
+                SpecialDate vuLan = new SpecialDate();
+                vuLan.setTitle("Lễ Vu Lan (Rằm Tháng 7)");
+                vuLan.setEventDate(LocalDate.of(2026, 8, 27));
+                vuLan.setEventType("HOLIDAY");
+                vuLan.setRecurringYearly(true);
+                vuLan.setColor("#ec4899");
+                vuLan.setIcon("🪷");
+                vuLan.setNote("Rằm tháng 7 - Ngày Báo Hiếu Âm lịch");
+                vuLan.setCreatedAt(LocalDateTime.now());
+                repository.save(vuLan);
+            }
+        } catch (Exception e) {
+            log.warn("Could not auto-seed August special dates: {}", e.getMessage());
+        }
+    }
+
     public List<SpecialDate> getAll() {
         return repository.findAll();
     }

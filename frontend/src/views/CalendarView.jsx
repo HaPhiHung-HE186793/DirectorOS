@@ -168,7 +168,7 @@ export default function CalendarView({
             {/* Days Grid */}
             <div className="grid grid-cols-7">
               {gridDays.map((dayObj, idx) => {
-                const indicators = getEventIndicators(dayObj.date);
+                const dayEvents = dayEventsMap[dayObj.date] || [];
                 const isSelected = selectedDate === dayObj.date;
                 const isSunday = idx % 7 === 6;
 
@@ -176,50 +176,82 @@ export default function CalendarView({
                   <button
                     key={dayObj.date}
                     onClick={() => handleDayClick(dayObj)}
-                    className={`relative min-h-[58px] sm:min-h-[72px] lg:min-h-[80px] p-1 sm:p-1.5 border-b border-r border-slate-800/40 transition-all duration-150 text-left group
+                    className={`relative min-h-[70px] sm:min-h-[84px] lg:min-h-[92px] p-1 sm:p-1.5 border-b border-r border-slate-800/40 transition-all duration-150 text-left group flex flex-col justify-between
                       ${!dayObj.isCurrentMonth ? 'opacity-30' : ''}
-                      ${dayObj.isToday ? 'bg-indigo-600/15 border-indigo-500/30' : 'hover:bg-slate-800/50'}
-                      ${isSelected ? 'bg-amber-500/10 ring-1 ring-amber-500/40' : ''}
+                      ${dayObj.isToday ? 'bg-indigo-600/15 border-indigo-500/40' : 'hover:bg-slate-800/50'}
+                      ${isSelected ? 'bg-amber-500/10 ring-2 ring-amber-500/60 z-10 rounded-lg shadow-lg shadow-amber-500/10' : ''}
                     `}
                   >
-                    {/* Solar Date (big, bold) */}
-                    <div className={`text-sm sm:text-base lg:text-lg font-bold leading-none
-                      ${dayObj.isToday ? 'text-indigo-300' : isSunday ? 'text-rose-400' : 'text-slate-200'}
-                    `}>
-                      {dayObj.day}
-                    </div>
+                    <div>
+                      {/* Top Header: Solar Date & Lunar Date */}
+                      <div className="flex items-baseline justify-between gap-1">
+                        <div className={`text-sm sm:text-base lg:text-lg font-extrabold leading-none
+                          ${dayObj.isToday ? 'text-indigo-300' : isSunday ? 'text-rose-400' : 'text-slate-100'}
+                        `}>
+                          {dayObj.day}
+                        </div>
 
-                    {/* Lunar Date (small, thin, below solar) */}
-                    <div className={`text-[9px] sm:text-[10px] leading-none mt-0.5 font-light truncate
-                      ${dayObj.isLunarNewMonth ? 'text-amber-400 font-semibold' : 'text-slate-500'}
-                    `}>
-                      {dayObj.isLunarNewMonth ? `${dayObj.lunarDay}/${dayObj.lunarMonth}` : dayObj.lunar}
-                    </div>
-
-                    {/* Today indicator dot */}
-                    {dayObj.isToday && (
-                      <div className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
-                    )}
-
-                    {/* Event indicators */}
-                    {indicators.count > 0 && dayObj.isCurrentMonth && (
-                      <div className="flex items-center gap-0.5 mt-1">
-                        {indicators.hasSpecial && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-rose-400" title="Ngày đặc biệt" />
-                        )}
-                        {indicators.hasPlan && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-blue-400" title="Kế hoạch" />
-                        )}
-                        {indicators.hasSynced && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-purple-400" title="Lịch email" />
-                        )}
+                        <div className={`text-[9px] sm:text-[10px] leading-none font-medium truncate ${
+                          dayObj.isLunarNewMonth ? 'text-amber-400 font-bold' : 'text-slate-500'
+                        }`}>
+                          {dayObj.isLunarNewMonth ? `${dayObj.lunarDay}/${dayObj.lunarMonth}` : dayObj.lunar}
+                        </div>
                       </div>
-                    )}
 
-                    {/* Hover: show event count */}
-                    {indicators.count > 0 && dayObj.isCurrentMonth && (
-                      <div className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity text-[9px] font-bold text-slate-400 bg-slate-800 px-1 rounded">
-                        {indicators.count}
+                      {/* Today indicator dot */}
+                      {dayObj.isToday && (
+                        <div className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
+                      )}
+                    </div>
+
+                    {/* Event badge chips (Render title & icon directly on calendar cell) */}
+                    {dayObj.isCurrentMonth && dayEvents.length > 0 && (
+                      <div className="mt-1 space-y-1 overflow-hidden">
+                        {dayEvents.slice(0, 2).map((ev, i) => {
+                          if (ev.type === 'SPECIAL') {
+                            return (
+                              <div
+                                key={ev.id || i}
+                                className="px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 truncate flex items-center gap-1 shadow-xs"
+                                title={ev.title}
+                              >
+                                <span className="shrink-0 text-xs">{ev.icon || '📌'}</span>
+                                <span className="truncate">{ev.title}</span>
+                              </div>
+                            );
+                          }
+                          if (ev.type === 'PLAN') {
+                            return (
+                              <div
+                                key={ev.id || i}
+                                className="px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/40 truncate flex items-center gap-1 shadow-xs"
+                                title={ev.title}
+                              >
+                                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
+                                <span className="truncate">{ev.title}</span>
+                              </div>
+                            );
+                          }
+                          if (ev.type === 'SYNCED') {
+                            return (
+                              <div
+                                key={ev.id || i}
+                                className="px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/40 truncate flex items-center gap-1 shadow-xs"
+                                title={ev.title}
+                              >
+                                <span className="w-1.5 h-1.5 rounded-full bg-purple-400 shrink-0" />
+                                <span className="truncate">{ev.title}</span>
+                              </div>
+                            );
+                          }
+                          return null;
+                        })}
+
+                        {dayEvents.length > 2 && (
+                          <div className="text-[8px] font-extrabold text-amber-400/90 pl-0.5">
+                            +{dayEvents.length - 2} sự kiện khác
+                          </div>
+                        )}
                       </div>
                     )}
                   </button>

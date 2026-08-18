@@ -578,13 +578,33 @@ export const fetchCalendarMonth = async (year, month) => {
     if (res.ok) return await res.json();
   } catch (err) {}
 
-  // Fallback: empty month data
+  // Fallback: mock month data
+  const dayEvents = {};
+  if (month === 8) {
+    dayEvents[`${year}-08-19`] = [
+      { id: 'sp-819a', title: 'Cách mạng Tháng Tám', type: 'SPECIAL', eventType: 'HOLIDAY', color: '#ef4444', icon: '🇻🇳', note: 'Kỷ niệm Ngày Cách mạng Tháng Tám thành công (19/08)' },
+      { id: 'sp-819b', title: 'Ngày Công an Nhân dân', type: 'SPECIAL', eventType: 'ANNIVERSARY', color: '#3b82f6', icon: '🛡️', note: 'Ngày truyền thống Công an Nhân dân Việt Nam' }
+    ];
+    dayEvents[`${year}-08-27`] = [
+      { id: 'sp-827', title: 'Lễ Vu Lan (Rằm tháng 7)', type: 'SPECIAL', eventType: 'HOLIDAY', color: '#ec4899', icon: '🪷', note: 'Rằm tháng 7 - Ngày Báo Hiếu Âm lịch' }
+    ];
+  } else if (month === 9) {
+    dayEvents[`${year}-09-02`] = [
+      { id: 'sp-902', title: 'Ngày Quốc khánh', type: 'SPECIAL', eventType: 'HOLIDAY', color: '#ef4444', icon: '🇻🇳', note: 'Ngày Quốc khánh nước CHXHCN Việt Nam (2/9)' }
+    ];
+  }
+
+  let totalSpecial = 0;
+  Object.values(dayEvents).forEach(arr => {
+    totalSpecial += arr.filter(e => e.type === 'SPECIAL').length;
+  });
+
   return {
     year, month,
-    totalSpecialDates: 0,
+    totalSpecialDates: totalSpecial,
     totalPlanItems: 0,
     totalSyncedEvents: 0,
-    dayEvents: {}
+    dayEvents
   };
 };
 
