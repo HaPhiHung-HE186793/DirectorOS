@@ -1,6 +1,7 @@
 package com.myhung.mytask.calendar.service;
 
 import com.myhung.mytask.calendar.dto.CalendarEvent;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -87,6 +88,7 @@ public class ICalParserService {
         LocalDateTime end = null;
         String description = null;
         String location = null;
+        String rrule = null;
 
         for (String line : lines) {
             line = line.trim();
@@ -97,9 +99,17 @@ public class ICalParserService {
                 end = null;
                 description = "";
                 location = "";
+                rrule = null;
             } else if (line.equals("END:VEVENT")) {
-                if (inEvent && start != null && end != null) {
-                    events.add(new CalendarEvent(summary, start, end, description, location, accountName, emailAddress));
+                if (inEvent && start != null) {
+                    if (end == null) {
+                        end = start.plusHours(1);
+                    }
+                    if (rrule != null && !rrule.isBlank()) {
+                        expandRecurringEvent(events, summary, start, end, description, location, accountName, emailAddress, rrule);
+                    } else {
+                        events.add(new CalendarEvent(summary, start, end, description, location, accountName, emailAddress));
+                    }
                 }
                 inEvent = false;
             } else if (inEvent) {
@@ -110,6 +120,9 @@ public class ICalParserService {
                     start = parseICalDateTime(line);
                 } else if (line.startsWith("DTEND")) {
                     end = parseICalDateTime(line);
+                } else if (line.startsWith("RRULE:") || line.startsWith("RRULE;")) {
+                    int colon = line.indexOf(':');
+                    if (colon != -1) rrule = line.substring(colon + 1).trim();
                 } else if (line.startsWith("DESCRIPTION:") || line.startsWith("DESCRIPTION;")) {
                     int colon = line.indexOf(':');
                     if (colon != -1) description = unescapeICalText(line.substring(colon + 1));
@@ -120,6 +133,53 @@ public class ICalParserService {
             }
         }
         return events;
+    }
+
+    private void expandRecurringEvent(List<CalendarEvent> events, String summary, LocalDateTime start, LocalDateTime end,
+                                       String description, String location, String accountName, String emailAddress, String rrule) {
+        // Always add the primary start event
+        events.add(new CalendarEvent(summary, start, end, description, location, accountName, emailAddress));
+
+        java.time.Duration eventDuration = java.time.Duration.between(start, end);
+        LocalDate untilDate = start.toLocalDate().plusYears(1); // Default cap: 1 year ahead
+
+        if (rrule.contains("UNTIL=")) {
+            try {
+                int idx = rrule.indexOf("UNTIL=");
+                String untilStr = rrule.substring(idx + 6);
+                if (untilStr.contains(";")) untilStr = untilStr.substring(0, untilStr.indexOf(";"));
+                if (untilStr.length() >= 8) {
+                    String dPart = untilStr.substring(0, 8);
+                    untilDate = LocalDate.parse(dPart, DateTimeFormatter.ofPattern("yyyyMMdd"));
+                }
+            } catch (Exception ignored) {}
+        }
+
+        if (rrule.contains("FREQ=DAILY")) {
+            LocalDateTime currStart = start.plusDays(1);
+            while (!currStart.toLocalDate().isAfter(untilDate) && events.size() < 500) {
+                events.add(new CalendarEvent(summary, currStart, currStart.plus(eventDuration), description, location, accountName, emailAddress));
+                currStart = currStart.plusDays(1);
+            }
+        } else if (rrule.contains("FREQ=WEEKLY")) {
+            LocalDateTime currStart = start.plusWeeks(1);
+            while (!currStart.toLocalDate().isAfter(untilDate) && events.size() < 500) {
+                events.add(new CalendarEvent(summary, currStart, currStart.plus(eventDuration), description, location, accountName, emailAddress));
+                currStart = currStart.plusWeeks(1);
+            }
+        } else if (rrule.contains("FREQ=MONTHLY")) {
+            LocalDateTime currStart = start.plusMonths(1);
+            while (!currStart.toLocalDate().isAfter(untilDate) && events.size() < 500) {
+                events.add(new CalendarEvent(summary, currStart, currStart.plus(eventDuration), description, location, accountName, emailAddress));
+                currStart = currStart.plusMonths(1);
+            }
+        } else if (rrule.contains("FREQ=YEARLY")) {
+            LocalDateTime currStart = start.plusYears(1);
+            while (!currStart.toLocalDate().isAfter(untilDate) && events.size() < 500) {
+                events.add(new CalendarEvent(summary, currStart, currStart.plus(eventDuration), description, location, accountName, emailAddress));
+                currStart = currStart.plusYears(1);
+            }
+        }
     }
 
     private String unescapeICalText(String text) {
