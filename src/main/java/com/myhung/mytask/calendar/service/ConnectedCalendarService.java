@@ -36,6 +36,9 @@ public class ConnectedCalendarService {
         if (calendar.getColorTag() == null || calendar.getColorTag().isBlank()) {
             calendar.setColorTag("#3b82f6");
         }
+        if (calendar.getSyncUrl() != null && !calendar.getSyncUrl().isBlank()) {
+            calendar.setSyncUrl(iCalParserService.normalizeICalUrl(calendar.getSyncUrl()));
+        }
         calendar.setLastSyncedAt(LocalDateTime.now());
         return repository.save(calendar);
     }
@@ -45,13 +48,14 @@ public class ConnectedCalendarService {
             if (calendar.getAccountName() != null) existing.setAccountName(calendar.getAccountName());
             if (calendar.getEmailAddress() != null) existing.setEmailAddress(calendar.getEmailAddress());
             if (calendar.getCalendarType() != null) existing.setCalendarType(calendar.getCalendarType());
-            if (calendar.getSyncUrl() != null) existing.setSyncUrl(calendar.getSyncUrl());
+            if (calendar.getSyncUrl() != null) existing.setSyncUrl(iCalParserService.normalizeICalUrl(calendar.getSyncUrl()));
             if (calendar.getColorTag() != null) existing.setColorTag(calendar.getColorTag());
             if (calendar.getSyncEnabled() != null) existing.setSyncEnabled(calendar.getSyncEnabled());
             existing.setLastSyncedAt(LocalDateTime.now());
             return repository.save(existing);
         }).orElseGet(() -> {
             calendar.setId(id);
+            if (calendar.getSyncUrl() != null) calendar.setSyncUrl(iCalParserService.normalizeICalUrl(calendar.getSyncUrl()));
             calendar.setLastSyncedAt(LocalDateTime.now());
             return repository.save(calendar);
         });
@@ -73,7 +77,7 @@ public class ConnectedCalendarService {
                     if (draft.getAccountName() != null) existing.setAccountName(draft.getAccountName());
                     if (draft.getEmailAddress() != null) existing.setEmailAddress(draft.getEmailAddress());
                     if (draft.getCalendarType() != null) existing.setCalendarType(draft.getCalendarType());
-                    if (draft.getSyncUrl() != null) existing.setSyncUrl(draft.getSyncUrl());
+                    if (draft.getSyncUrl() != null) existing.setSyncUrl(iCalParserService.normalizeICalUrl(draft.getSyncUrl()));
                     if (draft.getColorTag() != null) existing.setColorTag(draft.getColorTag());
                     if (draft.getSyncEnabled() != null) existing.setSyncEnabled(draft.getSyncEnabled());
                     existing.setLastSyncedAt(LocalDateTime.now());
@@ -88,7 +92,7 @@ public class ConnectedCalendarService {
             newCal.setAccountName(draft.getAccountName() != null ? draft.getAccountName() : "Lịch mới");
             newCal.setEmailAddress(draft.getEmailAddress() != null ? draft.getEmailAddress() : "");
             newCal.setCalendarType(draft.getCalendarType() != null ? draft.getCalendarType() : "ICAL");
-            newCal.setSyncUrl(draft.getSyncUrl() != null ? draft.getSyncUrl() : "");
+            newCal.setSyncUrl(draft.getSyncUrl() != null ? iCalParserService.normalizeICalUrl(draft.getSyncUrl()) : "");
             newCal.setColorTag(draft.getColorTag() != null && !draft.getColorTag().isBlank() ? draft.getColorTag() : "#3b82f6");
             newCal.setSyncEnabled(draft.getSyncEnabled() != null ? draft.getSyncEnabled() : true);
             newCal.setCreatedAt(LocalDateTime.now());
@@ -118,6 +122,12 @@ public class ConnectedCalendarService {
         List<CalendarEvent> allEvents = new ArrayList<>();
 
         for (ConnectedCalendar cal : activeCalendars) {
+            if (cal.getSyncUrl() != null && !cal.getSyncUrl().isBlank()) {
+                String normalized = iCalParserService.normalizeICalUrl(cal.getSyncUrl());
+                if (!normalized.equals(cal.getSyncUrl())) {
+                    cal.setSyncUrl(normalized);
+                }
+            }
             cal.setLastSyncedAt(LocalDateTime.now());
             repository.save(cal);
 
