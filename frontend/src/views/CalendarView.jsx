@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, Calendar, Plus, Star, Cake, Flag, Heart } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Plus, Star, Cake, Flag, Heart, X } from 'lucide-react';
 import { getCalendarGridDays, MONTH_NAMES_VI, WEEKDAY_NAMES_VI, getLunarDateFull } from '../utils/lunarCalendar';
 import DayDetailPanel from '../components/calendar/DayDetailPanel';
 import AddSpecialDateModal from '../components/calendar/AddSpecialDateModal';
@@ -20,6 +20,7 @@ export default function CalendarView({
   const [selectedDate, setSelectedDate] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [addModalDate, setAddModalDate] = useState(null);
+  const [showMobileDetail, setShowMobileDetail] = useState(false);
 
   // Generate calendar grid
   const gridDays = useMemo(
@@ -145,6 +146,7 @@ export default function CalendarView({
 
   const handleDayClick = (dayObj) => {
     setSelectedDate(dayObj.date);
+    setShowMobileDetail(true);
   };
 
   const handleAddEventOnDate = (dateStr) => {
@@ -342,8 +344,8 @@ export default function CalendarView({
           </div>
         </div>
 
-        {/* Day Detail Panel (right side on desktop, below on mobile) */}
-        <div className="w-full lg:w-80 xl:w-96 shrink-0">
+        {/* Day Detail Panel (Permanent sidebar on Desktop) */}
+        <div className="hidden lg:block w-80 xl:w-96 shrink-0">
           <DayDetailPanel
             selectedDate={selectedDate}
             events={selectedDate ? (dayEventsMap[selectedDate] || []) : []}
@@ -352,6 +354,44 @@ export default function CalendarView({
           />
         </div>
       </div>
+
+      {/* Mobile Bottom Sheet Popup for Day Details (Only on mobile when date is tapped) */}
+      {showMobileDetail && selectedDate && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/80 backdrop-blur-sm animate-fade-in lg:hidden p-0">
+          <div
+            className="fixed inset-0"
+            onClick={() => setShowMobileDetail(false)}
+          />
+          <div className="relative z-10 w-full bg-slate-900 border-t border-slate-800 rounded-t-3xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col animate-slide-up">
+            {/* Mobile Drag Header */}
+            <div className="flex items-center justify-between px-5 py-3 bg-slate-950/80 border-b border-slate-800/80">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-1 rounded-full bg-slate-700" />
+                <span className="text-xs font-bold text-slate-400">Chi tiết ngày</span>
+              </div>
+              <button
+                onClick={() => setShowMobileDetail(false)}
+                className="p-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Panel Content */}
+            <div className="flex-1 overflow-y-auto">
+              <DayDetailPanel
+                selectedDate={selectedDate}
+                events={dayEventsMap[selectedDate] || []}
+                onAddEvent={() => {
+                  setShowMobileDetail(false);
+                  handleAddEventOnDate(selectedDate);
+                }}
+                onClose={() => setShowMobileDetail(false)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Add Special Date Modal */}
       {showAddModal && (
