@@ -23,8 +23,42 @@ import {
   deleteSpecialDate as apiDeleteSpecialDate,
 } from './services/api';
 
+const VALID_TABS = ['calendar', 'today', 'night', 'tasks', 'settings'];
+
+const getInitialTab = () => {
+  try {
+    const hash = window.location.hash.replace('#', '').toLowerCase();
+    if (VALID_TABS.includes(hash)) return hash;
+
+    const stored = localStorage.getItem('director_active_tab');
+    if (stored && VALID_TABS.includes(stored)) return stored;
+  } catch (e) {}
+  return 'calendar';
+};
+
 export default function App() {
-  const [activeTab, setActiveTab] = useState('calendar');
+  const [activeTab, setActiveTabState] = useState(getInitialTab);
+
+  const setActiveTab = (tab) => {
+    if (!VALID_TABS.includes(tab)) return;
+    setActiveTabState(tab);
+    try {
+      localStorage.setItem('director_active_tab', tab);
+      window.location.hash = tab;
+    } catch (e) {}
+  };
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '').toLowerCase();
+      if (VALID_TABS.includes(hash)) {
+        setActiveTabState(hash);
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
   const [tasks, setTasks] = useState([]);
   const [todayPlan, setTodayPlan] = useState(null);
   const [candidateTasks, setCandidateTasks] = useState([]);
