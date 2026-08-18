@@ -62,7 +62,7 @@ export const EmailNotificationCard = ({
           {emailTestResult && (
             <div className={`text-xs flex items-center gap-1.5 font-semibold ${emailTestResult.sent ? 'text-emerald-400' : 'text-rose-400'}`}>
               {emailTestResult.sent ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
-              <span>{emailTestResult.sent ? `Đã gửi thử tới ${emailTestResult.recipient}!` : 'Chưa gửi được (Kiểm tra SMTP)'}</span>
+              <span>{emailTestResult.sent ? `Đã gửi thử tới ${emailTestResult.recipient}!` : (emailTestResult.reason || 'Chưa gửi được (Kiểm tra SMTP)')}</span>
             </div>
           )}
         </div>

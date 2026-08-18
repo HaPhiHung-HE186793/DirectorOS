@@ -65,10 +65,12 @@ public class NotificationController {
         String subject = body.getOrDefault("subject", "📧 [DirectorOS] Kế hoạch làm việc hôm nay");
         String content = body.getOrDefault("message", "Chào bạn, đây là email nhắc nhở kế hoạch làm việc từ ứng dụng DirectorOS.");
         boolean sent = emailNotificationService.sendEmailNotification(subject, content, email);
+        String reason = sent ? "Đã gửi email thành công!" : "Chưa gửi được: Máy chủ chưa cấu hình Gmail SMTP App Password (như SPRING_MAIL_USERNAME / SPRING_MAIL_PASSWORD).";
         return ResponseEntity.ok(Map.of(
                 "sent", sent,
                 "recipient", email,
-                "subject", subject
+                "subject", subject,
+                "reason", reason
         ));
     }
 }
