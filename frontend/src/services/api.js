@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://directoros-rhpq.onrender.com/api';
 
 // Initial mock data if backend server is not connected
 let mockTasks = [
