@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Send, Eye, EyeOff, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
+import { FormLabel, FormInput } from './FormControls';
 
 export const TelegramSettingsCard = ({
   botToken,
@@ -28,15 +29,16 @@ export const TelegramSettingsCard = ({
 
       <div className="space-y-3 pt-2">
         <div>
-          <label className="text-xs font-semibold text-slate-300">TELEGRAM_BOT_TOKEN</label>
-          <div className="relative mt-1">
-            <input
+          <FormLabel>TELEGRAM_BOT_TOKEN</FormLabel>
+          <div className="relative">
+            <FormInput
               type={showToken ? 'text' : 'password'}
               value={botToken}
               onChange={(e) => setBotToken(e.target.value)}
               placeholder="Ví dụ: 8824714561:AAEBr..."
               autoComplete="off"
-              className="w-full p-2.5 pr-10 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-sky-500 font-mono"
+              fontMono
+              className="pr-10 focus:border-sky-500"
             />
             <button
               type="button"
@@ -50,13 +52,14 @@ export const TelegramSettingsCard = ({
         </div>
 
         <div>
-          <label className="text-xs font-semibold text-slate-300">TELEGRAM_CHAT_ID</label>
-          <input
+          <FormLabel>TELEGRAM_CHAT_ID</FormLabel>
+          <FormInput
             type="text"
             value={chatId}
             onChange={(e) => setChatId(e.target.value)}
             placeholder="Ví dụ: 5304032224"
-            className="w-full mt-1 p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-sky-500 font-mono"
+            fontMono
+            className="focus:border-sky-500"
           />
         </div>
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Volume2, VolumeX, Mic } from 'lucide-react';
+import { FormLabel, FormSelect } from './FormControls';
 
 export const VoiceSynthesisCard = ({
   aiVoiceLang,
@@ -23,43 +24,39 @@ export const VoiceSynthesisCard = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-2">
         <div>
-          <label className="text-xs font-bold text-amber-300/90 uppercase tracking-wider block mb-1">
-            Ngôn ngữ Đọc của AI
-          </label>
-          <select
+          <FormLabel>Ngôn ngữ Đọc của AI</FormLabel>
+          <FormSelect
             value={aiVoiceLang}
             onChange={(e) => {
               setAiVoiceLang(e.target.value);
               setAiVoiceName('');
             }}
-            className="w-full px-3.5 py-3 bg-slate-900 border border-slate-700/80 rounded-xl text-sm font-semibold text-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 shadow-sm min-h-[46px] cursor-pointer"
+            className="focus:border-amber-500"
           >
             {getAvailableLanguages().map((lang) => (
-              <option key={lang.code} value={lang.code} className="bg-slate-900 text-white py-2">
+              <option key={lang.code} value={lang.code}>
                 {lang.label}
               </option>
             ))}
-          </select>
+          </FormSelect>
         </div>
 
         <div>
-          <label className="text-xs font-bold text-amber-300/90 uppercase tracking-wider block mb-1">
-            Gói Giọng Đọc Hệ Thống
-          </label>
-          <select
+          <FormLabel>Gói Giọng Đọc Hệ Thống</FormLabel>
+          <FormSelect
             value={aiVoiceName}
             onChange={(e) => setAiVoiceName(e.target.value)}
-            className="w-full px-3.5 py-3 bg-slate-900 border border-slate-700/80 rounded-xl text-sm font-semibold text-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 shadow-sm min-h-[46px] cursor-pointer"
+            className="focus:border-amber-500"
           >
-            <option value="" className="bg-slate-900 text-white py-2">-- Tự động chọn giọng đọc chuẩn nhất --</option>
+            <option value="">-- Tự động chọn giọng đọc chuẩn --</option>
             {filteredVoices.map((v, i) => (
-              <option key={i} value={v.name} className="bg-slate-900 text-white py-2">
+              <option key={i} value={v.name}>
                 {v.name} ({v.lang})
               </option>
             ))}
-          </select>
+          </FormSelect>
         </div>
       </div>
 

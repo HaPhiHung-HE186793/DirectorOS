@@ -1,5 +1,6 @@
 import React from 'react';
 import { Plus, Pencil, Lock } from 'lucide-react';
+import { FormLabel, FormInput, FormSelect } from './FormControls';
 
 export const AddCalendarModal = ({
   show,
@@ -34,57 +35,54 @@ export const AddCalendarModal = ({
           )}
         </h3>
 
-        <form onSubmit={onSubmit} className="space-y-4">
+        <form onSubmit={onSubmit} className="space-y-3.5">
           <div>
-            <label className="text-xs font-bold text-indigo-300/90 uppercase tracking-wider block mb-1">Tên gợi nhớ tài khoản</label>
-            <input
+            <FormLabel>Tên gợi nhớ tài khoản</FormLabel>
+            <FormInput
               type="text"
               required
               placeholder="Ví dụ: Gmail Công Ty A, Gmail Dự Án..."
               value={newAccName}
               onChange={(e) => setNewAccName(e.target.value)}
-              className="w-full px-3.5 py-3 bg-slate-950 border border-slate-700/80 rounded-xl text-sm font-semibold text-white placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 min-h-[46px]"
             />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-indigo-300/90 uppercase tracking-wider block mb-1">Địa chỉ Email</label>
-            <input
+            <FormLabel>Địa chỉ Email</FormLabel>
+            <FormInput
               type="email"
               required
               placeholder="director@company.com"
               value={newAccEmail}
               onChange={(e) => setNewAccEmail(e.target.value)}
-              className="w-full px-3.5 py-3 bg-slate-950 border border-slate-700/80 rounded-xl text-sm font-semibold text-white placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 min-h-[46px]"
             />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-indigo-300/90 uppercase tracking-wider block mb-1">Phương Thức Xác Thực Lịch (Enterprise Auth)</label>
-            <select
+            <FormLabel>Phương Thức Xác Thực Lịch (Enterprise Auth)</FormLabel>
+            <FormSelect
               value={newAccType}
               onChange={(e) => setNewAccType(e.target.value)}
-              className="w-full px-3.5 py-3 bg-slate-950 border border-slate-700/80 rounded-xl text-sm font-semibold text-white focus:outline-none focus:border-indigo-500 min-h-[46px] cursor-pointer"
             >
-              <option value="ICAL" className="bg-slate-900 text-white py-2">🔗 Secret iCal / ICS Private Feed URL (Nhanh & Bảo mật)</option>
-              <option value="GMAIL" className="bg-slate-900 text-white py-2">🔐 Google OAuth2 (Google Calendar API v3)</option>
-              <option value="OUTLOOK" className="bg-slate-900 text-white py-2">🔐 Microsoft OAuth2 (MS Graph API v1.0)</option>
-            </select>
+              <option value="ICAL">🔗 Secret iCal / ICS Private Feed URL (Nhanh & Bảo mật)</option>
+              <option value="GMAIL">🔐 Google OAuth2 (Google Calendar API v3)</option>
+              <option value="OUTLOOK">🔐 Microsoft OAuth2 (MS Graph API v1.0)</option>
+            </FormSelect>
           </div>
 
           {newAccType === 'ICAL' ? (
             <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-bold text-indigo-300/90 uppercase tracking-wider block">Đường dẫn Lịch Bí Mật (Secret iCal URL)</label>
-                <span className="text-[10px] text-amber-400 font-mono font-bold">Bắt buộc</span>
-              </div>
-              <input
+              <FormLabel extraRight={<span className="text-[10px] text-amber-400 font-mono font-bold">Bắt buộc</span>}>
+                Đường dẫn Lịch Bí Mật (Secret iCal URL)
+              </FormLabel>
+              <FormInput
                 type="url"
                 required
+                fontMono
                 placeholder="https://calendar.google.com/calendar/ical/.../private-xxxx/basic.ics"
                 value={newAccSyncUrl}
                 onChange={(e) => setNewAccSyncUrl(e.target.value)}
-                className="w-full px-3.5 py-3 bg-slate-950 border border-slate-700/80 rounded-xl text-xs font-mono text-emerald-400 focus:outline-none focus:border-emerald-500 min-h-[46px]"
+                className="text-emerald-400 focus:border-emerald-500"
               />
               <p className="text-[10px] text-slate-400 mt-1">
                 * Lấy tại: Google Calendar Settings ➔ Integrate calendar ➔ Secret address in iCal format.

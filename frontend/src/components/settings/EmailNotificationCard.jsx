@@ -1,5 +1,6 @@
 import React from 'react';
 import { Mail, Send, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
+import { FormLabel, FormInput } from './FormControls';
 
 export const EmailNotificationCard = ({
   emailAddress,
@@ -24,13 +25,14 @@ export const EmailNotificationCard = ({
 
       <div className="space-y-3 pt-2">
         <div>
-          <label className="text-xs font-semibold text-slate-300">Địa chỉ Email nhận tin</label>
-          <input
+          <FormLabel>Địa chỉ Email nhận tin</FormLabel>
+          <FormInput
             type="email"
             value={emailAddress}
             onChange={(e) => setEmailAddress(e.target.value)}
             placeholder="director@company.com"
-            className="w-full mt-1 p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500 font-mono"
+            fontMono
+            className="focus:border-indigo-500"
           />
         </div>
 
