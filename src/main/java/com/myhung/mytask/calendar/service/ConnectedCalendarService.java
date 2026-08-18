@@ -104,6 +104,7 @@ public class ConnectedCalendarService {
             }
         }
 
+        iCalParserService.clearCache();
         return savedResult;
     }
 
@@ -112,6 +113,7 @@ public class ConnectedCalendarService {
     }
 
     public Map<String, Object> syncAndDetectConflicts() {
+        iCalParserService.clearCache();
         List<ConnectedCalendar> activeCalendars = repository.findBySyncEnabledTrue();
         List<CalendarEvent> allEvents = new ArrayList<>();
 

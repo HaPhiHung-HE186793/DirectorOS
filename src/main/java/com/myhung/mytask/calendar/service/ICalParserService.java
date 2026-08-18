@@ -32,6 +32,11 @@ public class ICalParserService {
         }
     }
 
+    public void clearCache() {
+        urlCache.clear();
+        log.info("Cleared iCal URL cache.");
+    }
+
     public List<CalendarEvent> fetchAndParseICal(String url, String accountName, String emailAddress) {
         List<CalendarEvent> events = new ArrayList<>();
         if (url == null || url.isBlank()) {
@@ -40,7 +45,7 @@ public class ICalParserService {
 
         long now = System.currentTimeMillis();
         CacheEntry cached = urlCache.get(url);
-        if (cached != null && (now - cached.timestamp) < 10 * 60 * 1000) {
+        if (cached != null && !cached.events.isEmpty() && (now - cached.timestamp) < 5 * 60 * 1000) {
             log.debug("Returning cached iCal feed for URL: {}", url);
             return cached.events;
         }
@@ -56,7 +61,9 @@ public class ICalParserService {
 
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null && !response.getBody().isBlank()) {
                 events = parseICSContent(response.getBody(), accountName, emailAddress);
-                urlCache.put(url, new CacheEntry(events, now));
+                if (!events.isEmpty()) {
+                    urlCache.put(url, new CacheEntry(events, now));
+                }
             }
         } catch (Exception e) {
             log.error("Failed to fetch/parse iCal feed from URL {}: {}", url, e.getMessage());
