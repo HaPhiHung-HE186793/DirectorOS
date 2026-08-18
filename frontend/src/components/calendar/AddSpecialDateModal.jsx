@@ -8,10 +8,72 @@ const EVENT_TYPES = [
   { value: 'CUSTOM', label: 'Tùy chỉnh', icon: '📌', color: '#3b82f6' },
 ];
 
+const parseCustomDate = (text) => {
+  if (!text) return null;
+  const clean = text.trim();
+
+  // Pattern 1: 8 continuous digits DDMMYYYY e.g. "01122004"
+  if (/^\d{8}$/.test(clean)) {
+    const day = parseInt(clean.substring(0, 2), 10);
+    const month = parseInt(clean.substring(2, 4), 10);
+    const year = parseInt(clean.substring(4, 8), 10);
+    if (month >= 1 && month <= 12 && day >= 1 && day <= 31 && year >= 1900 && year <= 2100) {
+      const iso = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const display = `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
+      return { iso, display };
+    }
+  }
+
+  // Pattern 1b: 7 continuous digits DMMYYYY e.g. "1122004" -> 1/12/2004
+  if (/^\d{7}$/.test(clean)) {
+    const day = parseInt(clean.substring(0, 1), 10);
+    const month = parseInt(clean.substring(1, 3), 10);
+    const year = parseInt(clean.substring(3, 7), 10);
+    if (month >= 1 && month <= 12 && day >= 1 && day <= 31 && year >= 1900 && year <= 2100) {
+      const iso = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const display = `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
+      return { iso, display };
+    }
+  }
+
+  // Pattern 2: DD/MM/YYYY or DD-MM-YYYY or D/M/YYYY or YYYY-MM-DD
+  const parts = clean.split(/[\/\-\.]/);
+  if (parts.length === 3) {
+    let day, month, year;
+    if (parts[0].length === 4) {
+      // YYYY/MM/DD
+      year = parseInt(parts[0], 10);
+      month = parseInt(parts[1], 10);
+      day = parseInt(parts[2], 10);
+    } else if (parts[2].length === 4) {
+      // DD/MM/YYYY
+      day = parseInt(parts[0], 10);
+      month = parseInt(parts[1], 10);
+      year = parseInt(parts[2], 10);
+    }
+    if (year && month >= 1 && month <= 12 && day >= 1 && day <= 31 && year >= 1900 && year <= 2100) {
+      const iso = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const display = `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
+      return { iso, display };
+    }
+  }
+
+  return null;
+};
+
+const formatIsoToDisplay = (isoStr) => {
+  if (!isoStr) return '';
+  const parts = isoStr.split('-');
+  if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  return isoStr;
+};
+
 export default function AddSpecialDateModal({ defaultDate, onClose, onSubmit }) {
   const today = defaultDate || new Date().toISOString().split('T')[0];
   const [title, setTitle] = useState('');
   const [eventDate, setEventDate] = useState(today);
+  const [dateTextInput, setDateTextInput] = useState(formatIsoToDisplay(today));
+  const [dateError, setDateError] = useState('');
   const [eventType, setEventType] = useState('BIRTHDAY');
   const [recurringYearly, setRecurringYearly] = useState(true);
   const [isLunarBased, setIsLunarBased] = useState(false);
@@ -28,9 +90,31 @@ export default function AddSpecialDateModal({ defaultDate, onClose, onSubmit }) 
     }
   };
 
+  const handleDateTextChange = (val) => {
+    setDateTextInput(val);
+    if (!val.trim()) {
+      setDateError('Vui lòng nhập ngày');
+      return;
+    }
+    const parsed = parseCustomDate(val);
+    if (parsed) {
+      setEventDate(parsed.iso);
+      setDateError('');
+    } else {
+      setDateError('Nhập ngày dạng: 01122004 hoặc 01/12/2004');
+    }
+  };
+
+  const handleNativePickerChange = (isoVal) => {
+    if (!isoVal) return;
+    setEventDate(isoVal);
+    setDateTextInput(formatIsoToDisplay(isoVal));
+    setDateError('');
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!title.trim() || !eventDate) return;
+    if (!title.trim() || !eventDate || dateError) return;
     onSubmit({
       title: title.trim(),
       eventDate,
@@ -69,12 +153,47 @@ export default function AddSpecialDateModal({ defaultDate, onClose, onSubmit }) 
 
           {/* Date */}
           <div>
-            <label className="text-xs font-bold text-slate-300 block mb-1">Ngày *</label>
-            <input
-              type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-sm text-white focus:outline-none focus:border-indigo-500 transition"
-              required
-            />
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs font-bold text-slate-300">
+                Ngày * <span className="text-[10px] text-indigo-400 font-normal">(Gõ số 01122004 hoặc chọn lịch)</span>
+              </label>
+              {eventDate && !dateError && (
+                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
+                  ✓ {formatIsoToDisplay(eventDate)}
+                </span>
+              )}
+            </div>
+
+            <div className="relative flex items-center">
+              <input
+                type="text"
+                value={dateTextInput}
+                onChange={(e) => handleDateTextChange(e.target.value)}
+                placeholder="VD: 01122004 hoặc 01/12/2004"
+                className={`w-full px-3 py-2.5 pr-10 rounded-xl bg-slate-800 border text-sm text-white font-mono placeholder-slate-500 focus:outline-none transition ${
+                  dateError ? 'border-rose-500 focus:border-rose-400' : 'border-slate-700 focus:border-indigo-500'
+                }`}
+                required
+              />
+
+              {/* Native Date Picker trigger overlay icon */}
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center">
+                <input
+                  type="date"
+                  value={eventDate}
+                  onChange={(e) => handleNativePickerChange(e.target.value)}
+                  className="absolute inset-0 opacity-0 w-8 h-8 cursor-pointer z-10"
+                  title="Bấm để chọn từ lịch"
+                />
+                <div className="p-1.5 rounded-lg bg-slate-700/60 text-indigo-400 hover:text-indigo-300 hover:bg-slate-700 transition">
+                  <Calendar className="w-4 h-4" />
+                </div>
+              </div>
+            </div>
+
+            {dateError && (
+              <p className="text-[11px] text-rose-400 mt-1 font-medium">{dateError}</p>
+            )}
           </div>
 
           {/* Event Type */}
