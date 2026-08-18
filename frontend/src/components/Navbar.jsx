@@ -10,7 +10,7 @@ export default function Navbar({ onTriggerReminder }) {
   });
 
   return (
-    <header className="sticky top-0 z-30 glass-panel border-b border-indigo-500/20 px-4 lg:px-8 py-3 flex items-center justify-between bg-slate-950/90 backdrop-blur-lg">
+    <header className="shrink-0 z-30 glass-panel border-b border-indigo-500/20 px-3 lg:px-8 py-2 sm:py-3 flex items-center justify-between bg-slate-950/95 backdrop-blur-lg">
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-600 to-blue-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 text-white">
           <Calendar className="w-5 h-5" />

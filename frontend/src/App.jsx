@@ -191,17 +191,17 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-['Plus_Jakarta_Sans',sans-serif] overflow-x-hidden w-full max-w-full">
+    <div className="h-[100dvh] max-h-[100dvh] bg-slate-950 text-slate-100 flex flex-col font-['Plus_Jakarta_Sans',sans-serif] overflow-hidden w-full max-w-full">
       {/* Top Navbar */}
       <Navbar onTriggerReminder={handleManualReminderTrigger} />
 
       {/* Main Body */}
-      <div className="flex-1 flex max-w-7xl w-full mx-auto pb-24 lg:pb-8 min-w-0">
+      <div className="flex-1 min-h-0 flex max-w-7xl w-full mx-auto pb-16 lg:pb-8 overflow-hidden">
         {/* Navigation Sidebar / Bottom Bar */}
         <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
 
         {/* Content View */}
-        <main className="flex-1 p-3 sm:p-5 lg:p-8 w-full min-w-0 max-w-full overflow-x-hidden">
+        <main className={`flex-1 p-2 sm:p-5 lg:p-8 w-full min-w-0 max-w-full flex flex-col min-h-0 ${activeTab === 'calendar' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
           {notificationBanner && (
             <div className="mb-6 p-4 rounded-xl bg-indigo-500/20 border border-indigo-500/30 text-indigo-200 text-xs font-semibold flex items-center justify-between shadow-lg shadow-indigo-500/10 animate-fade-in">
               <span>{notificationBanner}</span>
