@@ -57,6 +57,56 @@ public class ConnectedCalendarService {
         });
     }
 
+    @org.springframework.transaction.annotation.Transactional
+    public List<ConnectedCalendar> batchSaveCalendars(List<ConnectedCalendar> draftList) {
+        if (draftList == null) draftList = new ArrayList<>();
+
+        List<ConnectedCalendar> existingCalendars = repository.findAll();
+        Set<Long> keepIds = new HashSet<>();
+        List<ConnectedCalendar> savedResult = new ArrayList<>();
+
+        for (ConnectedCalendar draft : draftList) {
+            if (draft.getId() != null && draft.getId() < 1000000000000L) {
+                Optional<ConnectedCalendar> existingOpt = repository.findById(draft.getId());
+                if (existingOpt.isPresent()) {
+                    ConnectedCalendar existing = existingOpt.get();
+                    if (draft.getAccountName() != null) existing.setAccountName(draft.getAccountName());
+                    if (draft.getEmailAddress() != null) existing.setEmailAddress(draft.getEmailAddress());
+                    if (draft.getCalendarType() != null) existing.setCalendarType(draft.getCalendarType());
+                    if (draft.getSyncUrl() != null) existing.setSyncUrl(draft.getSyncUrl());
+                    if (draft.getColorTag() != null) existing.setColorTag(draft.getColorTag());
+                    if (draft.getSyncEnabled() != null) existing.setSyncEnabled(draft.getSyncEnabled());
+                    existing.setLastSyncedAt(LocalDateTime.now());
+                    ConnectedCalendar saved = repository.save(existing);
+                    keepIds.add(saved.getId());
+                    savedResult.add(saved);
+                    continue;
+                }
+            }
+
+            ConnectedCalendar newCal = new ConnectedCalendar();
+            newCal.setAccountName(draft.getAccountName() != null ? draft.getAccountName() : "Lịch mới");
+            newCal.setEmailAddress(draft.getEmailAddress() != null ? draft.getEmailAddress() : "");
+            newCal.setCalendarType(draft.getCalendarType() != null ? draft.getCalendarType() : "ICAL");
+            newCal.setSyncUrl(draft.getSyncUrl() != null ? draft.getSyncUrl() : "");
+            newCal.setColorTag(draft.getColorTag() != null && !draft.getColorTag().isBlank() ? draft.getColorTag() : "#3b82f6");
+            newCal.setSyncEnabled(draft.getSyncEnabled() != null ? draft.getSyncEnabled() : true);
+            newCal.setCreatedAt(LocalDateTime.now());
+            newCal.setLastSyncedAt(LocalDateTime.now());
+            ConnectedCalendar saved = repository.save(newCal);
+            keepIds.add(saved.getId());
+            savedResult.add(saved);
+        }
+
+        for (ConnectedCalendar existing : existingCalendars) {
+            if (!keepIds.contains(existing.getId())) {
+                repository.deleteById(existing.getId());
+            }
+        }
+
+        return savedResult;
+    }
+
     public void deleteCalendar(Long id) {
         repository.deleteById(id);
     }

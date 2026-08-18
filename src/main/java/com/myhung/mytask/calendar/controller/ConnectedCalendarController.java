@@ -24,6 +24,11 @@ public class ConnectedCalendarController {
         return ResponseEntity.ok(service.getAllCalendars());
     }
 
+    @PostMapping("/batch")
+    public ResponseEntity<List<ConnectedCalendar>> batchSaveCalendars(@RequestBody List<ConnectedCalendar> calendars) {
+        return ResponseEntity.ok(service.batchSaveCalendars(calendars));
+    }
+
     @PostMapping
     public ResponseEntity<ConnectedCalendar> addCalendar(@RequestBody ConnectedCalendar calendar) {
         return ResponseEntity.ok(service.addCalendar(calendar));

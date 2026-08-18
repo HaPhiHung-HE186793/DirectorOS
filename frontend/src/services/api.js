@@ -481,6 +481,23 @@ export const fetchCalendars = async () => {
   return mockCalendars && mockCalendars.length > 0 ? mockCalendars : DEFAULT_SEED_CALENDARS;
 };
 
+export const batchSaveCalendars = async (draftList = []) => {
+  const res = await fetch(`${BASE_URL}/calendars/batch`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(draftList)
+  });
+  if (res.ok) {
+    const data = await res.json();
+    const normalized = Array.isArray(data) ? data.map(normalizeCalendar) : [];
+    mockCalendars = normalized;
+    saveStoredCalendars(normalized);
+    return normalized;
+  }
+  const errText = await res.text().catch(() => '');
+  throw new Error(`Server returned ${res.status} ${res.statusText}: ${errText}`);
+};
+
 export const addCalendar = async (calendarData) => {
   const res = await fetch(`${BASE_URL}/calendars`, {
     method: 'POST',

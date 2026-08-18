@@ -9,6 +9,7 @@ import {
   addCalendar,
   updateCalendar,
   deleteCalendar,
+  batchSaveCalendars,
   syncCalendars
 } from '../services/api';
 import { getAvailableVoices, getAvailableLanguages, speakText, stopSpeech } from '../utils/speech';
@@ -92,20 +93,28 @@ export const SettingsView = () => {
   const handleSaveAllSettings = async () => {
     setSaving(true);
     setSaveSuccess(false);
-    const settingsMap = {
-      telegram_bot_token: botToken,
-      telegram_chat_id: chatId,
-      telegram_enabled: String(enabled),
-      email_address: emailAddress,
-      email_enabled: String(emailEnabled),
-      ai_voice_lang: aiVoiceLang,
-      ai_voice_name: aiVoiceName
-    };
+    try {
+      const settingsMap = {
+        telegram_bot_token: botToken,
+        telegram_chat_id: chatId,
+        telegram_enabled: String(enabled),
+        email_address: emailAddress,
+        email_enabled: String(emailEnabled),
+        ai_voice_lang: aiVoiceLang,
+        ai_voice_name: aiVoiceName
+      };
 
-    await saveSettings(settingsMap);
-    setSaving(false);
-    setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 3000);
+      await saveSettings(settingsMap);
+      const updatedCals = await batchSaveCalendars(calendars);
+      setCalendars(updatedCals);
+
+      setSaving(false);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (err) {
+      setSaving(false);
+      alert("❌ Lỗi lưu cấu hình: " + err.message);
+    }
   };
 
   const handleTestTelegramNotification = async () => {
@@ -166,11 +175,12 @@ export const SettingsView = () => {
     setShowAddCalModal(true);
   };
 
-  const handleSaveCalendarAccount = async (e) => {
+  const handleSaveCalendarAccount = (e) => {
     e.preventDefault();
     if (!newAccName || !newAccEmail) return;
 
     const payload = {
+      id: editingCalId || Date.now(),
       accountName: newAccName,
       emailAddress: newAccEmail,
       calendarType: newAccType,
@@ -179,34 +189,24 @@ export const SettingsView = () => {
       syncEnabled: true
     };
 
-    try {
-      if (editingCalId) {
-        const updated = await updateCalendar(editingCalId, payload);
-        setCalendars(calendars.map(c => (c.id === editingCalId || String(c.id) === String(editingCalId)) ? updated : c));
-      } else {
-        const newCal = await addCalendar(payload);
-        setCalendars([...calendars, newCal]);
-      }
-      setNewAccName('');
-      setNewAccEmail('');
-      setNewAccSyncUrl('');
-      setEditingCalId(null);
-      setShowAddCalModal(false);
-    } catch (err) {
-      alert("❌ Lỗi lưu dữ liệu: Không thể lưu vào Database Server! Chi tiết lỗi: " + err.message);
+    if (editingCalId) {
+      setCalendars(calendars.map(c => (c.id === editingCalId || String(c.id) === String(editingCalId)) ? payload : c));
+    } else {
+      setCalendars([...calendars, payload]);
     }
+
+    setNewAccName('');
+    setNewAccEmail('');
+    setNewAccSyncUrl('');
+    setEditingCalId(null);
+    setShowAddCalModal(false);
   };
 
-  const handleDeleteCalendarAccount = async (id) => {
-    try {
-      await deleteCalendar(id);
-      const updated = calendars.filter((c) => c.id !== id);
-      setCalendars(updated);
-      if (updated.length < 2) {
-        setSyncReport(null);
-      }
-    } catch (err) {
-      alert("❌ Lỗi xóa dữ liệu: Không thể xóa khỏi Database Server! Chi tiết lỗi: " + err.message);
+  const handleDeleteCalendarAccount = (id) => {
+    const updated = calendars.filter((c) => c.id !== id && String(c.id) !== String(id));
+    setCalendars(updated);
+    if (updated.length < 2) {
+      setSyncReport(null);
     }
   };
 
