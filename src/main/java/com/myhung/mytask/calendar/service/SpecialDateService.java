@@ -62,6 +62,20 @@ public class SpecialDateService {
                 vuLan.setCreatedAt(LocalDateTime.now());
                 repository.save(vuLan);
             }
+
+            boolean hasJune = all.stream().anyMatch(sd -> sd.getEventDate() != null && sd.getEventDate().getMonthValue() == 6);
+            if (!hasJune) {
+                SpecialDate qttn = new SpecialDate();
+                qttn.setTitle("Quốc tế Thiếu nhi");
+                qttn.setEventDate(LocalDate.of(2026, 6, 1));
+                qttn.setEventType("HOLIDAY");
+                qttn.setRecurringYearly(true);
+                qttn.setColor("#f59e0b");
+                qttn.setIcon("🎈");
+                qttn.setNote("Ngày Quốc tế Thiếu nhi 1/6");
+                qttn.setCreatedAt(LocalDateTime.now());
+                repository.save(qttn);
+            }
         } catch (Exception e) {
             log.warn("Could not auto-seed August special dates: {}", e.getMessage());
         }

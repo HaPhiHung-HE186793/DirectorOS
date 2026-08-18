@@ -209,13 +209,21 @@ export default function CalendarView({
                       <div className="mt-1 space-y-1 overflow-hidden">
                         {dayEvents.slice(0, 2).map((ev, i) => {
                           if (ev.type === 'SPECIAL') {
+                            const isBirthday = ev.eventType === 'BIRTHDAY';
+                            const isHoliday = ev.eventType === 'HOLIDAY';
+                            const chipStyle = isBirthday
+                              ? 'bg-pink-500/20 text-pink-300 border-pink-500/40'
+                              : isHoliday
+                              ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                              : 'bg-amber-500/20 text-amber-300 border-amber-500/40';
+
                             return (
                               <div
                                 key={ev.id || i}
-                                className="px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 truncate flex items-center gap-1 shadow-xs"
+                                className={`px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-bold border truncate flex items-center gap-1 shadow-xs ${chipStyle}`}
                                 title={ev.title}
                               >
-                                <span className="shrink-0 text-xs">{ev.icon || '📌'}</span>
+                                <span className="shrink-0 text-xs">{ev.icon || (isBirthday ? '🎂' : '📌')}</span>
                                 <span className="truncate">{ev.title}</span>
                               </div>
                             );

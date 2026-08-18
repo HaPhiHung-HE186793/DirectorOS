@@ -588,6 +588,11 @@ export const fetchCalendarMonth = async (year, month) => {
     dayEvents[`${year}-08-27`] = [
       { id: 'sp-827', title: 'Lễ Vu Lan (Rằm tháng 7)', type: 'SPECIAL', eventType: 'HOLIDAY', color: '#ec4899', icon: '🪷', note: 'Rằm tháng 7 - Ngày Báo Hiếu Âm lịch' }
     ];
+  } else if (month === 6) {
+    dayEvents[`${year}-06-01`] = [
+      { id: 'sp-601a', title: 'Quốc tế Thiếu nhi', type: 'SPECIAL', eventType: 'HOLIDAY', color: '#f59e0b', icon: '🎈', note: 'Ngày Quốc tế Thiếu nhi 1/6' },
+      { id: 'sp-601b', title: 'Sinh nhật Bạn Nam', type: 'SPECIAL', eventType: 'BIRTHDAY', color: '#ec4899', icon: '🎂', note: 'Sinh nhật bạn thân (Nhớ mua quà!)' }
+    ];
   } else if (month === 9) {
     dayEvents[`${year}-09-02`] = [
       { id: 'sp-902', title: 'Ngày Quốc khánh', type: 'SPECIAL', eventType: 'HOLIDAY', color: '#ef4444', icon: '🇻🇳', note: 'Ngày Quốc khánh nước CHXHCN Việt Nam (2/9)' }
