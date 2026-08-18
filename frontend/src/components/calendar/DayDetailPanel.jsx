@@ -1,8 +1,8 @@
 import React from 'react';
-import { Calendar, Plus, Clock, Cake, Flag, Heart, Star, MapPin, Briefcase, CheckCircle2 } from 'lucide-react';
+import { Calendar, Plus, Clock, Cake, Flag, Heart, Star, MapPin, Briefcase, CheckCircle2, X } from 'lucide-react';
 import { getLunarDateFull } from '../../utils/lunarCalendar';
 
-export default function DayDetailPanel({ selectedDate, events, onAddEvent, onClose }) {
+export default function DayDetailPanel({ selectedDate, events, onAddEvent, onClose, isModal }) {
   if (!selectedDate) {
     return (
       <div className="bg-slate-900/60 rounded-2xl border border-slate-800/80 p-6 text-center min-h-[300px] flex flex-col items-center justify-center">
@@ -36,15 +36,27 @@ export default function DayDetailPanel({ selectedDate, events, onAddEvent, onClo
   };
 
   return (
-    <div className="bg-slate-900/60 rounded-2xl border border-slate-800/80 overflow-hidden">
-      <div className="p-4 bg-gradient-to-r from-indigo-950/40 to-slate-900 border-b border-slate-800/60">
+    <div className={`bg-slate-900/90 rounded-2xl border border-slate-800/80 overflow-hidden flex flex-col ${isModal ? 'h-full max-h-[80vh]' : ''}`}>
+      <div className="p-4 bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-950/80 border-b border-slate-800/60 shrink-0">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs text-indigo-400 font-semibold uppercase tracking-wider">{dayOfWeek}</p>
-            <h3 className="text-lg font-extrabold text-white mt-0.5">{formattedDate}</h3>
-            <p className="text-xs text-amber-400/80 mt-0.5 font-medium">{lunarFull}</p>
+            <p className="text-xs text-indigo-400 font-extrabold uppercase tracking-wider">{dayOfWeek}</p>
+            <h3 className="text-lg sm:text-xl font-extrabold text-white mt-0.5">{formattedDate}</h3>
+            <p className="text-xs text-amber-400/90 mt-0.5 font-semibold">{lunarFull}</p>
           </div>
-          <div className="text-3xl font-black text-indigo-300/20">{d}</div>
+          
+          <div className="flex items-center gap-3">
+            <div className="text-3xl sm:text-4xl font-black text-indigo-400/25">{d}</div>
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition border border-slate-700/50"
+                title="Đóng"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

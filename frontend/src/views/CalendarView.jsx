@@ -154,19 +154,23 @@ export default function CalendarView({
     setShowAddModal(true);
   };
 
+  // Compute grid rows for dynamic mobile flex height (5 or 6 rows)
+  const numRows = Math.ceil(gridDays.length / 7);
+  const gridRowsClass = numRows === 6 ? 'grid-rows-6' : 'grid-rows-5';
+
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col lg:block h-[calc(100dvh-7.5rem)] lg:h-auto space-y-2 lg:space-y-4 overflow-hidden">
       {/* Calendar Header */}
-      <div className="flex flex-col sm:flex-row gap-3 sm:items-center justify-between bg-gradient-to-r from-slate-900 via-indigo-950/30 to-slate-900 p-4 lg:p-5 rounded-2xl border border-slate-800/80">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0">
-            <Calendar className="w-5 h-5 text-indigo-400" />
+      <div className="flex flex-col sm:flex-row gap-2.5 sm:items-center justify-between bg-gradient-to-r from-slate-900 via-indigo-950/30 to-slate-900 p-2.5 sm:p-4 lg:p-5 rounded-2xl border border-slate-800/80 shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0">
+            <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-400" />
           </div>
           <div>
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-extrabold text-white">
+            <h2 className="text-base sm:text-xl lg:text-2xl font-extrabold text-white">
               {MONTH_NAMES_VI[currentMonth - 1]}, {currentYear}
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-[10px] sm:text-xs text-slate-400 mt-0.5">
               Lịch Vạn Niên • Dương lịch + Âm lịch
             </p>
           </div>
@@ -176,38 +180,38 @@ export default function CalendarView({
           <div className="flex items-center gap-1 sm:gap-2">
             <button
               onClick={handlePrevMonth}
-              className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition active:scale-95 border border-slate-700/50"
+              className="p-1.5 sm:p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition active:scale-95 border border-slate-700/50"
               title="Tháng trước"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
             <button
               onClick={handleGoToToday}
-              className="px-2.5 sm:px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 text-xs font-bold transition border border-indigo-500/30"
+              className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 text-[11px] sm:text-xs font-bold transition border border-indigo-500/30"
             >
               Hôm nay
             </button>
             <button
               onClick={handleNextMonth}
-              className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition active:scale-95 border border-slate-700/50"
+              className="p-1.5 sm:p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition active:scale-95 border border-slate-700/50"
               title="Tháng sau"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
           </div>
           <button
             onClick={() => { setAddModalDate(null); setShowAddModal(true); }}
-            className="px-2.5 sm:px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-xs font-bold transition border border-amber-500/30 flex items-center gap-1"
+            className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-[11px] sm:text-xs font-bold transition border border-amber-500/30 flex items-center gap-1"
           >
             <Plus className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Thêm ngày đặc biệt</span>
-            <span className="sm:hidden text-[11px]">Ngày đặc biệt</span>
+            <span className="sm:hidden text-[10px]">Ngày đặc biệt</span>
           </button>
         </div>
       </div>
 
       {/* Summary bar */}
-      <div className="flex items-center justify-between sm:justify-start gap-2 sm:gap-4 px-3 py-2 bg-slate-900/60 rounded-xl border border-slate-800/60 text-[11px] sm:text-xs text-slate-300">
+      <div className="flex items-center justify-between sm:justify-start gap-2 sm:gap-4 px-3 py-1.5 bg-slate-900/60 rounded-xl border border-slate-800/60 text-[10px] sm:text-xs text-slate-300 shrink-0">
         <span className="flex items-center gap-1.5 shrink-0">
           <span className="w-2 h-2 rounded-full bg-rose-400"></span>
           {totals.specialCount} <span className="hidden xs:inline">ngày đặc biệt</span><span className="xs:hidden">đặc biệt</span>
@@ -222,16 +226,16 @@ export default function CalendarView({
         </span>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-4">
+      <div className="flex flex-col lg:flex-row flex-1 min-h-0 gap-4 overflow-hidden">
         {/* Calendar Grid */}
-        <div className="flex-1 min-w-0">
-          <div className="bg-slate-900/60 rounded-2xl border border-slate-800/80 overflow-hidden shadow-xl">
+        <div className="flex-1 min-w-0 flex flex-col min-h-0 h-full">
+          <div className="bg-slate-900/60 rounded-2xl border border-slate-800/80 overflow-hidden shadow-xl flex-1 min-h-0 flex flex-col">
             {/* Weekday Header */}
-            <div className="grid grid-cols-7 bg-slate-900/90 border-b border-slate-800/60">
+            <div className="grid grid-cols-7 bg-slate-900/90 border-b border-slate-800/60 shrink-0">
               {WEEKDAY_NAMES_VI.map((day, i) => (
                 <div
                   key={day}
-                  className={`py-2 text-center text-[10px] sm:text-xs font-extrabold tracking-wider ${
+                  className={`py-1.5 sm:py-2 text-center text-[10px] sm:text-xs font-extrabold tracking-wider ${
                     i === 6 ? 'text-rose-400' : 'text-slate-400'
                   }`}
                 >
@@ -240,8 +244,8 @@ export default function CalendarView({
               ))}
             </div>
 
-            {/* Days Grid */}
-            <div className="grid grid-cols-7 border-collapse">
+            {/* Days Grid (Dynamically stretched flex rows on mobile) */}
+            <div className={`grid grid-cols-7 ${gridRowsClass} flex-1 min-h-0 divide-y divide-x divide-slate-800/40 h-full`}>
               {gridDays.map((dayObj, idx) => {
                 const dayEvents = dayEventsMap[dayObj.date] || [];
                 const isSelected = selectedDate === dayObj.date;
@@ -251,7 +255,7 @@ export default function CalendarView({
                   <button
                     key={dayObj.date}
                     onClick={() => handleDayClick(dayObj)}
-                    className={`relative min-h-[64px] sm:min-h-[84px] lg:min-h-[92px] p-1 sm:p-1.5 border-b border-r border-slate-800/40 transition-all duration-150 text-left group flex flex-col justify-between overflow-hidden max-w-full min-w-0
+                    className={`relative h-full min-h-0 p-1 sm:p-1.5 transition-all duration-150 text-left group flex flex-col justify-between overflow-hidden max-w-full min-w-0
                       ${!dayObj.isCurrentMonth ? 'opacity-25' : ''}
                       ${dayObj.isToday ? 'bg-indigo-600/15 border-indigo-500/40' : 'hover:bg-slate-800/50'}
                       ${isSelected ? 'bg-amber-500/10 ring-2 ring-amber-500/60 z-10 rounded-lg shadow-lg shadow-amber-500/10' : ''}
@@ -279,7 +283,7 @@ export default function CalendarView({
                       )}
                     </div>
 
-                    {/* Event badge chips (Strictly contained inside day cell, max-w-full overflow-hidden) */}
+                    {/* Event badge chips */}
                     {dayObj.isCurrentMonth && dayEvents.length > 0 && (
                       <div className="mt-0.5 space-y-0.5 w-full max-w-full min-w-0 overflow-hidden">
                         {dayEvents.slice(0, 2).map((ev, i) => {
@@ -355,40 +359,26 @@ export default function CalendarView({
         </div>
       </div>
 
-      {/* Mobile Bottom Sheet Popup for Day Details (Only on mobile when date is tapped) */}
+      {/* Centered Floating Executive Glass Modal for Day Details on Mobile */}
       {showMobileDetail && selectedDate && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/80 backdrop-blur-sm animate-fade-in lg:hidden p-0">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in lg:hidden">
+          {/* Backdrop Click Handler */}
           <div
-            className="fixed inset-0"
+            className="absolute inset-0"
             onClick={() => setShowMobileDetail(false)}
           />
-          <div className="relative z-10 w-full bg-slate-900 border-t border-slate-800 rounded-t-3xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col animate-slide-up">
-            {/* Mobile Drag Header */}
-            <div className="flex items-center justify-between px-5 py-3 bg-slate-950/80 border-b border-slate-800/80">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-1 rounded-full bg-slate-700" />
-                <span className="text-xs font-bold text-slate-400">Chi tiết ngày</span>
-              </div>
-              <button
-                onClick={() => setShowMobileDetail(false)}
-                className="p-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 transition"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Panel Content */}
-            <div className="flex-1 overflow-y-auto">
-              <DayDetailPanel
-                selectedDate={selectedDate}
-                events={dayEventsMap[selectedDate] || []}
-                onAddEvent={() => {
-                  setShowMobileDetail(false);
-                  handleAddEventOnDate(selectedDate);
-                }}
-                onClose={() => setShowMobileDetail(false)}
-              />
-            </div>
+          {/* Centered Executive Glass Card */}
+          <div className="relative z-10 w-full max-w-sm sm:max-w-md bg-slate-900 border border-indigo-500/30 rounded-3xl shadow-2xl shadow-indigo-500/20 overflow-hidden max-h-[82vh] flex flex-col animate-scale-in">
+            <DayDetailPanel
+              selectedDate={selectedDate}
+              events={dayEventsMap[selectedDate] || []}
+              onAddEvent={() => {
+                setShowMobileDetail(false);
+                handleAddEventOnDate(selectedDate);
+              }}
+              onClose={() => setShowMobileDetail(false)}
+              isModal={true}
+            />
           </div>
         </div>
       )}
