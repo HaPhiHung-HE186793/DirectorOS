@@ -665,7 +665,7 @@ export const fetchCalendarMonth = async (year, month) => {
       { id: 'sp-819b', title: 'Ngày Công an Nhân dân', type: 'SPECIAL', eventType: 'ANNIVERSARY', color: '#3b82f6', icon: '🛡️', note: 'Ngày truyền thống Công an Nhân dân Việt Nam' }
     ];
     dayEvents[`${year}-08-27`] = [
-      { id: 'sp-827', title: 'Lễ Vu Lan (Rằm tháng 7)', type: 'SPECIAL', eventType: 'HOLIDAY', color: '#ec4899', icon: '🪷', note: 'Rằm tháng 7 - Ngày Báo Hiếu Âm lịch' }
+      { id: 'sp-827', title: 'Lễ Vu Lan (Rằm Tháng 7)', type: 'SPECIAL', eventType: 'HOLIDAY', color: '#ec4899', icon: '🪷', note: 'Rằm tháng 7 - Ngày Báo Hiếu Âm lịch' }
     ];
   } else if (month === 6) {
     dayEvents[`${year}-06-01`] = [
@@ -710,7 +710,7 @@ export const fetchSpecialDates = async () => {
     { id: 7, title: 'Quốc tế Thiếu nhi', eventDate: '2026-06-01', eventType: 'HOLIDAY', color: '#f59e0b', icon: '🎈' },
     { id: 8, title: 'Cách mạng Tháng Tám', eventDate: '2026-08-19', eventType: 'HOLIDAY', color: '#ef4444', icon: '🇻🇳' },
     { id: 9, title: 'Ngày Công an Nhân dân', eventDate: '2026-08-19', eventType: 'ANNIVERSARY', color: '#3b82f6', icon: '🛡️' },
-    { id: 10, title: 'Lễ Vu Lan (Rằm tháng 7)', eventDate: '2026-08-27', eventType: 'HOLIDAY', color: '#ec4899', icon: '🪷' },
+    { id: 10, title: 'Lễ Vu Lan (Rằm Tháng 7)', eventDate: '2026-08-27', eventType: 'HOLIDAY', color: '#ec4899', icon: '🪷' },
     { id: 11, title: 'Ngày Quốc khánh', eventDate: '2026-09-02', eventType: 'HOLIDAY', color: '#ef4444', icon: '🇻🇳' },
     { id: 12, title: 'Ngày Phụ nữ Việt Nam', eventDate: '2026-10-20', eventType: 'ANNIVERSARY', color: '#ec4899', icon: '🌸' },
     { id: 13, title: 'Ngày Nhà giáo Việt Nam', eventDate: '2026-11-20', eventType: 'ANNIVERSARY', color: '#8b5cf6', icon: '📚' },

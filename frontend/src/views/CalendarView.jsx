@@ -92,7 +92,13 @@ export default function CalendarView({
         if (!map[dateKey]) map[dateKey] = [];
         events.forEach((ev) => {
           if (ev.type === 'SPECIAL') {
-            const exists = map[dateKey].some((e) => e.title === ev.title);
+            const exists = map[dateKey].some((e) =>
+              e.type === 'SPECIAL' && (
+                (e.specialDateId && ev.specialDateId && e.specialDateId === ev.specialDateId) ||
+                (e.id && ev.id && e.id === ev.id) ||
+                (e.title && ev.title && e.title.trim().toLowerCase() === ev.title.trim().toLowerCase())
+              )
+            );
             if (!exists) map[dateKey].push(ev);
           } else {
             map[dateKey].push(ev);
