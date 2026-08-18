@@ -64,7 +64,7 @@ export const AddCalendarModal = ({
               value={newAccType}
               onChange={(e) => setNewAccType(e.target.value)}
             >
-              <option value="ICAL">🔗 Secret iCal / ICS Private Feed URL (Nhanh & Bảo mật)</option>
+              <option value="ICAL">🔗 Link iCal Bí Mật (.ics) hoặc Link Chia Sẻ Google Calendar (cid=... / Shareable Link)</option>
               <option value="GMAIL">🔐 Google OAuth2 (Google Calendar API v3)</option>
               <option value="OUTLOOK">🔐 Microsoft OAuth2 (MS Graph API v1.0)</option>
             </FormSelect>
@@ -73,19 +73,21 @@ export const AddCalendarModal = ({
           {newAccType === 'ICAL' ? (
             <div>
               <FormLabel extraRight={<span className="text-[10px] text-amber-400 font-mono font-bold">Bắt buộc</span>}>
-                Đường dẫn Lịch Bí Mật (Secret iCal URL)
+                Link Lịch iCal / Link Chia Sẻ Google Calendar
               </FormLabel>
               <FormInput
-                type="url"
+                type="text"
                 required
                 fontMono
-                placeholder="https://calendar.google.com/calendar/ical/.../private-xxxx/basic.ics"
+                placeholder="Dán Link chia sẻ Google Calendar (cid=...) hoặc Link Secret iCal (.ics)..."
                 value={newAccSyncUrl}
                 onChange={(e) => setNewAccSyncUrl(e.target.value)}
-                className="text-emerald-400 focus:border-emerald-500"
+                className="text-emerald-400 focus:border-emerald-500 text-xs"
               />
-              <p className="text-[10px] text-slate-400 mt-1">
-                * Lấy tại: Google Calendar Settings ➔ Integrate calendar ➔ Secret address in iCal format.
+              <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
+                * Hỗ trợ 2 cách lấy link:<br/>
+                • <b>Cách 1 (Link Chia Sẻ):</b> Google Calendar ➔ Quyền truy cập ➔ <code className="text-indigo-300">Lấy liên kết có thể chia sẻ (Get shareable link)</code><br/>
+                • <b>Cách 2 (Link Bí Mật):</b> Google Calendar ➔ Tích hợp lịch ➔ <code className="text-emerald-300">Địa chỉ mật ở định dạng iCal (Secret address in iCal)</code>
               </p>
             </div>
           ) : (

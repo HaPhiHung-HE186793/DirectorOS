@@ -38,11 +38,13 @@ public class ICalParserService {
         log.info("Cleared iCal URL cache.");
     }
 
-    public List<CalendarEvent> fetchAndParseICal(String url, String accountName, String emailAddress) {
+    public List<CalendarEvent> fetchAndParseICal(String rawUrl, String accountName, String emailAddress) {
         List<CalendarEvent> events = new ArrayList<>();
-        if (url == null || url.isBlank()) {
+        if (rawUrl == null || rawUrl.isBlank()) {
             return events;
         }
+
+        String url = normalizeICalUrl(rawUrl);
 
         long now = System.currentTimeMillis();
         CacheEntry cached = urlCache.get(url);
@@ -67,11 +69,78 @@ public class ICalParserService {
                 }
             }
         } catch (Exception e) {
-            log.error("Failed to fetch/parse iCal feed from URL {}: {}", url, e.getMessage());
+            log.error("Failed to fetch/parse iCal feed from URL {} (raw: {}): {}", url, rawUrl, e.getMessage());
             if (cached != null) return cached.events; // Fallback to expired cache on error
         }
 
         return events;
+    }
+
+    public String normalizeICalUrl(String rawUrl) {
+        if (rawUrl == null || rawUrl.isBlank()) return rawUrl;
+        String url = rawUrl.trim();
+
+        // 1. If already ends with .ics or contains /basic.ics, return as is
+        if (url.toLowerCase().endsWith(".ics") || url.contains("basic.ics")) {
+            return url;
+        }
+
+        // 2. If Google Calendar shareable link with cid=...
+        // Example: https://calendar.google.com/calendar/u/0?cid=aHVuZ2hwQHN0cmluZ2VlLmNvbQ
+        if (url.contains("cid=")) {
+            try {
+                int cidIdx = url.indexOf("cid=");
+                String cidVal = url.substring(cidIdx + 4);
+                if (cidVal.contains("&")) cidVal = cidVal.substring(0, cidVal.indexOf("&"));
+                if (cidVal.contains("#")) cidVal = cidVal.substring(0, cidVal.indexOf("#"));
+
+                String decodedEmail = cidVal;
+                if (!cidVal.contains("@")) {
+                    try {
+                        byte[] decoded = java.util.Base64.getDecoder().decode(cidVal);
+                        String str = new String(decoded, java.nio.charset.StandardCharsets.UTF_8);
+                        if (str.contains("@")) {
+                            decodedEmail = str;
+                        }
+                    } catch (Exception ignored) {}
+                }
+
+                if (decodedEmail.contains("@")) {
+                    String encodedEmail = java.net.URLEncoder.encode(decodedEmail, java.nio.charset.StandardCharsets.UTF_8.name());
+                    return "https://calendar.google.com/calendar/ical/" + encodedEmail + "/public/basic.ics";
+                }
+            } catch (Exception e) {
+                log.warn("Could not parse cid parameter from URL {}: {}", url, e.getMessage());
+            }
+        }
+
+        // 3. If Google Calendar embed link with src=...
+        if (url.contains("src=")) {
+            try {
+                int srcIdx = url.indexOf("src=");
+                String srcVal = url.substring(srcIdx + 4);
+                if (srcVal.contains("&")) srcVal = srcVal.substring(0, srcVal.indexOf("&"));
+                if (srcVal.contains("#")) srcVal = srcVal.substring(0, srcVal.indexOf("#"));
+
+                String email = java.net.URLDecoder.decode(srcVal, java.nio.charset.StandardCharsets.UTF_8.name());
+                if (email.contains("@")) {
+                    String encodedEmail = java.net.URLEncoder.encode(email, java.nio.charset.StandardCharsets.UTF_8.name());
+                    return "https://calendar.google.com/calendar/ical/" + encodedEmail + "/public/basic.ics";
+                }
+            } catch (Exception e) {
+                log.warn("Could not parse src parameter from URL {}: {}", url, e.getMessage());
+            }
+        }
+
+        // 4. If user entered plain email address
+        if (url.contains("@") && !url.contains("http://") && !url.contains("https://")) {
+            try {
+                String encodedEmail = java.net.URLEncoder.encode(url, java.nio.charset.StandardCharsets.UTF_8.name());
+                return "https://calendar.google.com/calendar/ical/" + encodedEmail + "/public/basic.ics";
+            } catch (Exception ignored) {}
+        }
+
+        return url;
     }
 
     public List<CalendarEvent> parseICSContent(String content, String accountName, String emailAddress) {
