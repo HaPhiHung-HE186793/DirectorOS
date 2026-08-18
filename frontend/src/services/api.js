@@ -427,7 +427,10 @@ const getStoredCalendars = () => {
   if (typeof window !== 'undefined' && window.localStorage) {
     const saved = localStorage.getItem('directoros_connected_calendars');
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) {}
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch (e) {}
     }
   }
   return [
@@ -442,6 +445,20 @@ const saveStoredCalendars = (cals) => {
   }
 };
 
+const normalizeCalendar = (cal) => {
+  if (!cal) return null;
+  return {
+    ...cal,
+    id: cal.id,
+    accountName: cal.accountName || cal.account_name || '',
+    emailAddress: cal.emailAddress || cal.email_address || '',
+    calendarType: cal.calendarType || cal.calendar_type || 'GMAIL',
+    syncUrl: cal.syncUrl || cal.sync_url || '',
+    colorTag: cal.colorTag || cal.color_tag || '#3b82f6',
+    syncEnabled: cal.syncEnabled !== undefined ? cal.syncEnabled : (cal.sync_enabled !== undefined ? cal.sync_enabled : true)
+  };
+};
+
 let mockCalendars = getStoredCalendars();
 
 export const fetchCalendars = async () => {
@@ -449,13 +466,16 @@ export const fetchCalendars = async () => {
     const res = await fetch(`${BASE_URL}/calendars`);
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        mockCalendars = data;
-        saveStoredCalendars(data);
-        return data;
+      if (Array.isArray(data)) {
+        const normalized = data.map(normalizeCalendar);
+        mockCalendars = normalized;
+        saveStoredCalendars(normalized);
+        return normalized;
       }
     }
-  } catch (err) {}
+  } catch (err) {
+    console.warn("Backend /api/calendars unreachable, fallback to cached state:", err);
+  }
   return mockCalendars;
 };
 
@@ -468,13 +488,15 @@ export const addCalendar = async (calendarData) => {
     });
     if (res.ok) {
       const data = await res.json();
-      mockCalendars.push(data);
+      const normalized = normalizeCalendar(data) || { ...calendarData, id: Date.now() };
+      mockCalendars = mockCalendars.filter(c => c.id !== normalized.id);
+      mockCalendars.push(normalized);
       saveStoredCalendars(mockCalendars);
-      return data;
+      return normalized;
     }
   } catch (err) {}
 
-  const newCal = { ...calendarData, id: Date.now() };
+  const newCal = normalizeCalendar({ ...calendarData, id: Date.now() });
   mockCalendars.push(newCal);
   saveStoredCalendars(mockCalendars);
   return newCal;
@@ -497,13 +519,14 @@ export const updateCalendar = async (id, updatedData) => {
     });
     if (res.ok) {
       const data = await res.json();
-      mockCalendars = mockCalendars.map(c => (c.id === id || String(c.id) === String(id)) ? data : c);
+      const normalized = normalizeCalendar(data) || { id, ...updatedData };
+      mockCalendars = mockCalendars.map(c => (c.id === id || String(c.id) === String(id)) ? normalized : c);
       saveStoredCalendars(mockCalendars);
-      return data;
+      return normalized;
     }
   } catch (err) {}
 
-  const updated = { id, ...updatedData };
+  const updated = normalizeCalendar({ id, ...updatedData });
   mockCalendars = mockCalendars.map(c => (c.id === id || String(c.id) === String(id)) ? updated : c);
   saveStoredCalendars(mockCalendars);
   return updated;

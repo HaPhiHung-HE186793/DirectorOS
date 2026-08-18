@@ -40,6 +40,23 @@ public class ConnectedCalendarService {
         return repository.save(calendar);
     }
 
+    public ConnectedCalendar updateCalendar(Long id, ConnectedCalendar calendar) {
+        return repository.findById(id).map(existing -> {
+            if (calendar.getAccountName() != null) existing.setAccountName(calendar.getAccountName());
+            if (calendar.getEmailAddress() != null) existing.setEmailAddress(calendar.getEmailAddress());
+            if (calendar.getCalendarType() != null) existing.setCalendarType(calendar.getCalendarType());
+            if (calendar.getSyncUrl() != null) existing.setSyncUrl(calendar.getSyncUrl());
+            if (calendar.getColorTag() != null) existing.setColorTag(calendar.getColorTag());
+            if (calendar.getSyncEnabled() != null) existing.setSyncEnabled(calendar.getSyncEnabled());
+            existing.setLastSyncedAt(LocalDateTime.now());
+            return repository.save(existing);
+        }).orElseGet(() -> {
+            calendar.setId(id);
+            calendar.setLastSyncedAt(LocalDateTime.now());
+            return repository.save(calendar);
+        });
+    }
+
     public void deleteCalendar(Long id) {
         repository.deleteById(id);
     }

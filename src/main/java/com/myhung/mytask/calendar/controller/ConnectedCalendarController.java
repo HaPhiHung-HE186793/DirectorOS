@@ -29,6 +29,11 @@ public class ConnectedCalendarController {
         return ResponseEntity.ok(service.addCalendar(calendar));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<ConnectedCalendar> updateCalendar(@PathVariable Long id, @RequestBody ConnectedCalendar calendar) {
+        return ResponseEntity.ok(service.updateCalendar(id, calendar));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCalendar(@PathVariable Long id) {
         service.deleteCalendar(id);

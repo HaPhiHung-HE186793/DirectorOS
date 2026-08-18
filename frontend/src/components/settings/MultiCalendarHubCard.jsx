@@ -55,15 +55,15 @@ export const MultiCalendarHubCard = ({
               className="p-3 bg-slate-900/90 border border-slate-800 rounded-xl flex items-center justify-between"
             >
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cal.colorTag || '#3b82f6' }} />
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cal.colorTag || cal.color_tag || '#3b82f6' }} />
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-xs text-white">{cal.accountName}</span>
+                    <span className="font-semibold text-xs text-white">{cal.accountName || cal.account_name}</span>
                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">
-                      {cal.calendarType}
+                      {cal.calendarType || cal.calendar_type}
                     </span>
                   </div>
-                  <span className="text-[11px] text-slate-400 font-mono">{cal.emailAddress}</span>
+                  <span className="text-[11px] text-slate-400 font-mono">{cal.emailAddress || cal.email_address}</span>
                 </div>
               </div>
 
