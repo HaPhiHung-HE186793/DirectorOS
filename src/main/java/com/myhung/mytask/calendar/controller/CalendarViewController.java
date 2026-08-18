@@ -31,4 +31,15 @@ public class CalendarViewController {
 
         return ResponseEntity.ok(aggregatorService.getMonthData(y, m));
     }
+
+    /**
+     * Get aggregated calendar data for an entire year.
+     * Pre-fetches all 12 months in a single query for maximum performance.
+     */
+    @GetMapping("/year")
+    public ResponseEntity<Map<String, Object>> getYearData(
+            @RequestParam(required = false) Integer year) {
+        int y = (year != null) ? year : LocalDate.now().getYear();
+        return ResponseEntity.ok(aggregatorService.getYearData(y));
+    }
 }

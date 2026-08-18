@@ -16,6 +16,8 @@ import {
   createPlan,
   triggerNightReminderNow,
   fetchCalendarMonth,
+  fetchCalendarYear,
+  fetchSpecialDates,
   createSpecialDate,
   deleteSpecialDate as apiDeleteSpecialDate,
 } from './services/api';
@@ -32,7 +34,13 @@ export default function App() {
   const [calendarYear, setCalendarYear] = useState(now.getFullYear());
   const [calendarMonth, setCalendarMonth] = useState(now.getMonth() + 1);
   const [calendarData, setCalendarData] = useState(null);
-  const [specialDates, setSpecialDates] = useState([]);
+  const [specialDates, setSpecialDates] = useState(() => {
+    try {
+      const local = localStorage.getItem('director_special_dates_cache');
+      if (local) return JSON.parse(local);
+    } catch (e) {}
+    return [];
+  });
 
   const loadData = async () => {
     const tList = await fetchTasks();
@@ -45,10 +53,24 @@ export default function App() {
     setCandidateTasks(candidates.length > 0 ? candidates : tList.filter(t => t.status !== 'COMPLETED' && t.status !== 'DONE'));
 
     const sDates = await fetchSpecialDates();
-    setSpecialDates(sDates);
+    if (sDates && sDates.length > 0) {
+      setSpecialDates(sDates);
+      try {
+        localStorage.setItem('director_special_dates_cache', JSON.stringify(sDates));
+      } catch (e) {}
+    }
   };
 
   const loadCalendarData = async (year, month) => {
+    // Pre-fetch full year in background so month switching is 0ms with zero network requests
+    fetchCalendarYear(year).then(() => {
+      fetchCalendarMonth(year, month).then((data) => {
+        if (data && data.year === year && data.month === month) {
+          setCalendarData(data);
+        }
+      });
+    }).catch(() => {});
+
     const data = await fetchCalendarMonth(year, month);
     if (data && data.year === year && data.month === month) {
       setCalendarData(data);

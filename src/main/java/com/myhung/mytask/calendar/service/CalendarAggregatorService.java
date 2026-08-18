@@ -40,6 +40,38 @@ public class CalendarAggregatorService {
     }
 
     /**
+     * Get aggregated calendar data for an entire year (12 months).
+     * Enables full-year client caching and zero-delay month switching.
+     */
+    public Map<String, Object> getYearData(int year) {
+        Map<String, List<Map<String, Object>>> dayEvents = new LinkedHashMap<>();
+        int totalSpecial = 0;
+        int totalPlans = 0;
+        int totalSynced = 0;
+
+        for (int m = 1; m <= 12; m++) {
+            Map<String, Object> mData = getMonthData(year, m);
+            totalSpecial += (int) mData.getOrDefault("totalSpecialDates", 0);
+            totalPlans += (int) mData.getOrDefault("totalPlanItems", 0);
+            totalSynced += (int) mData.getOrDefault("totalSyncedEvents", 0);
+
+            @SuppressWarnings("unchecked")
+            Map<String, List<Map<String, Object>>> mDayEvents = (Map<String, List<Map<String, Object>>>) mData.get("dayEvents");
+            if (mDayEvents != null) {
+                dayEvents.putAll(mDayEvents);
+            }
+        }
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("year", year);
+        result.put("totalSpecialDates", totalSpecial);
+        result.put("totalPlanItems", totalPlans);
+        result.put("totalSyncedEvents", totalSynced);
+        result.put("dayEvents", dayEvents);
+        return result;
+    }
+
+    /**
      * Get aggregated calendar data for a given month.
      * Returns a map with all events organized by date.
      */

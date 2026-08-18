@@ -572,13 +572,81 @@ export const syncCalendars = async (activeCals = []) => {
 // Calendar View & Special Dates API
 // ============================================================
 
-export const fetchCalendarMonth = async (year, month) => {
+const yearCache = {};
+
+export const fetchCalendarYear = async (year) => {
+  if (yearCache[year]) return yearCache[year];
+
+  // Try loading from localStorage first for instant 0ms boot
   try {
-    const res = await fetch(`${BASE_URL}/calendar/month?year=${year}&month=${month}`);
-    if (res.ok) return await res.json();
+    const local = localStorage.getItem(`director_calendar_year_${year}`);
+    if (local) {
+      const parsed = JSON.parse(local);
+      yearCache[year] = parsed;
+    }
+  } catch (e) {}
+
+  try {
+    const res = await fetch(`${BASE_URL}/calendar/year?year=${year}`);
+    if (res.ok) {
+      const data = await res.json();
+      yearCache[year] = data;
+      try {
+        localStorage.setItem(`director_calendar_year_${year}`, JSON.stringify(data));
+      } catch (e) {}
+      return data;
+    }
   } catch (err) {}
 
-  // Fallback: mock month data
+  return yearCache[year] || null;
+};
+
+export const fetchCalendarMonth = async (year, month) => {
+  // If year data is cached in memory or localStorage, extract month data in 0ms!
+  let yData = yearCache[year];
+  if (!yData) {
+    try {
+      const local = localStorage.getItem(`director_calendar_year_${year}`);
+      if (local) {
+        yData = JSON.parse(local);
+        yearCache[year] = yData;
+      }
+    } catch (e) {}
+  }
+
+  if (yData && yData.dayEvents) {
+    const fullDayEvents = yData.dayEvents;
+    const monthEvents = {};
+    let totalSpecial = 0;
+    let totalPlan = 0;
+    let totalSynced = 0;
+
+    const prefix = `${year}-${String(month).padStart(2, '0')}`;
+    Object.entries(fullDayEvents).forEach(([dateKey, events]) => {
+      if (dateKey.startsWith(prefix)) {
+        monthEvents[dateKey] = events;
+        events.forEach(e => {
+          if (e.type === 'SPECIAL') totalSpecial++;
+          else if (e.type === 'PLAN') totalPlan++;
+          else if (e.type === 'SYNCED') totalSynced++;
+        });
+      }
+    });
+
+    // Background refresh year data asynchronously without blocking UI
+    fetchCalendarYear(year).catch(() => {});
+
+    return {
+      year,
+      month,
+      totalSpecialDates: totalSpecial,
+      totalPlanItems: totalPlan,
+      totalSyncedEvents: totalSynced,
+      dayEvents: monthEvents
+    };
+  }
+
+  // Fallback if offline/network unavailable
   const dayEvents = {};
   if (month === 8) {
     dayEvents[`${year}-08-19`] = [

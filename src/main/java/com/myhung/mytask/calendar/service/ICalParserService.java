@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -20,19 +21,39 @@ public class ICalParserService {
         this.restTemplate = restTemplate;
     }
 
+    private final Map<String, CacheEntry> urlCache = new java.util.concurrent.ConcurrentHashMap<>();
+
+    private static class CacheEntry {
+        final List<CalendarEvent> events;
+        final long timestamp;
+        CacheEntry(List<CalendarEvent> events, long timestamp) {
+            this.events = events;
+            this.timestamp = timestamp;
+        }
+    }
+
     public List<CalendarEvent> fetchAndParseICal(String url, String accountName, String emailAddress) {
         List<CalendarEvent> events = new ArrayList<>();
         if (url == null || url.isBlank()) {
             return events;
         }
 
+        long now = System.currentTimeMillis();
+        CacheEntry cached = urlCache.get(url);
+        if (cached != null && (now - cached.timestamp) < 10 * 60 * 1000) {
+            log.debug("Returning cached iCal feed for URL: {}", url);
+            return cached.events;
+        }
+
         try {
             String icsContent = restTemplate.getForObject(url, String.class);
             if (icsContent != null && !icsContent.isBlank()) {
                 events = parseICSContent(icsContent, accountName, emailAddress);
+                urlCache.put(url, new CacheEntry(events, now));
             }
         } catch (Exception e) {
             log.error("Failed to fetch/parse iCal feed from URL {}: {}", url, e.getMessage());
+            if (cached != null) return cached.events; // Fallback to expired cache on error
         }
 
         return events;
