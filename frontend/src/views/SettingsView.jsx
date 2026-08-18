@@ -113,7 +113,11 @@ export const SettingsView = () => {
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (err) {
       setSaving(false);
-      alert("❌ Lỗi lưu cấu hình: " + err.message);
+      if (err.message?.includes('SERVER_DEPLOYING') || err.message?.includes('Failed to fetch') || err.name === 'TypeError') {
+        alert("⏳ BẢO TRÌ/DEPLOYMENT NOTICE:\nServer Backend đang trong quá trình khởi động lại (Render đang Deploy code mới).\n\n👉 Vui lòng đợi khoảng 30 - 60 giây rồi bấm nút 'Lưu Cấu Hình' lại!");
+      } else {
+        alert("❌ LỖI CODE/SERVER BUG:\nKhông thể lưu vào Database Server. Chi tiết lỗi: " + err.message);
+      }
     }
   };
 

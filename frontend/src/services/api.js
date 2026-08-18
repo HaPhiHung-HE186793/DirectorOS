@@ -419,8 +419,14 @@ export const saveSettings = async (settingsMap) => {
       body: JSON.stringify(settingsMap)
     });
     if (res.ok) return await res.json();
-  } catch (err) {}
-  return { success: true, message: "Đã lưu cấu hình (Mô phỏng local)." };
+    const errText = await res.text().catch(() => '');
+    throw new Error(`Server returned ${res.status} ${res.statusText}: ${errText}`);
+  } catch (err) {
+    if (err.name === 'TypeError' || err.message?.includes('Failed to fetch') || err.message?.includes('NetworkError')) {
+      throw new Error(`SERVER_DEPLOYING: Backend Server đang khởi động/Deploy code mới (Render đang restart). Vui lòng đợi 30-60s rồi bấm thử lại!`);
+    }
+    throw err;
+  }
 };
 
 const DEFAULT_SEED_CALENDARS = [
@@ -482,20 +488,27 @@ export const fetchCalendars = async () => {
 };
 
 export const batchSaveCalendars = async (draftList = []) => {
-  const res = await fetch(`${BASE_URL}/calendars/batch`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(draftList)
-  });
-  if (res.ok) {
-    const data = await res.json();
-    const normalized = Array.isArray(data) ? data.map(normalizeCalendar) : [];
-    mockCalendars = normalized;
-    saveStoredCalendars(normalized);
-    return normalized;
+  try {
+    const res = await fetch(`${BASE_URL}/calendars/batch`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(draftList)
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const normalized = Array.isArray(data) ? data.map(normalizeCalendar) : [];
+      mockCalendars = normalized;
+      saveStoredCalendars(normalized);
+      return normalized;
+    }
+    const errText = await res.text().catch(() => '');
+    throw new Error(`Server returned ${res.status} ${res.statusText}: ${errText}`);
+  } catch (err) {
+    if (err.name === 'TypeError' || err.message?.includes('Failed to fetch') || err.message?.includes('NetworkError')) {
+      throw new Error(`SERVER_DEPLOYING: Backend Server đang khởi động/Deploy code mới (Render đang restart). Vui lòng đợi 30-60s rồi bấm thử lại!`);
+    }
+    throw err;
   }
-  const errText = await res.text().catch(() => '');
-  throw new Error(`Server returned ${res.status} ${res.statusText}: ${errText}`);
 };
 
 export const addCalendar = async (calendarData) => {
