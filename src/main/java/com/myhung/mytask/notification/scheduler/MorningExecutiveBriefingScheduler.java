@@ -116,7 +116,7 @@ public class MorningExecutiveBriefingScheduler {
             sb.append("\n");
         }
 
-        sb.append("📱 *Giám đốc vui lòng mở app myTask để xem chi tiết Timeline và nghe Thư ký báo cáo giọng nói!*");
+        sb.append("📱 *Giám đốc vui lòng mở app DirectorOS để xem chi tiết Timeline và nghe Thư ký báo cáo giọng nói!*");
 
         String notificationMessage = sb.toString();
         telegramNotificationService.sendNotification(notificationMessage);

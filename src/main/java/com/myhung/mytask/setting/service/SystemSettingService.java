@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,21 @@ public class SystemSettingService {
 
     private final SystemSettingRepository settingRepository;
     private final Map<String, String> cache = new ConcurrentHashMap<>();
+
+    @Value("${telegram.bot.token:}")
+    private String defaultTelegramToken;
+
+    @Value("${telegram.bot.chat-id:}")
+    private String defaultTelegramChatId;
+
+    @Value("${telegram.bot.enabled:true}")
+    private String defaultTelegramEnabled;
+
+    @Value("${email.notification.address:}")
+    private String defaultEmailAddress;
+
+    @Value("${email.notification.enabled:true}")
+    private String defaultEmailEnabled;
 
     public SystemSettingService(SystemSettingRepository settingRepository) {
         this.settingRepository = settingRepository;
@@ -44,6 +60,23 @@ public class SystemSettingService {
             map.put(setting.getSettingKey(), val);
             cache.put(setting.getSettingKey(), val);
         }
+
+        if (!map.containsKey("telegram_bot_token") && defaultTelegramToken != null && !defaultTelegramToken.isBlank()) {
+            map.put("telegram_bot_token", defaultTelegramToken.trim());
+        }
+        if (!map.containsKey("telegram_chat_id") && defaultTelegramChatId != null && !defaultTelegramChatId.isBlank()) {
+            map.put("telegram_chat_id", defaultTelegramChatId.trim());
+        }
+        if (!map.containsKey("telegram_enabled")) {
+            map.put("telegram_enabled", (defaultTelegramEnabled != null && !defaultTelegramEnabled.isBlank()) ? defaultTelegramEnabled.trim() : "true");
+        }
+        if (!map.containsKey("email_address") && defaultEmailAddress != null && !defaultEmailAddress.isBlank()) {
+            map.put("email_address", defaultEmailAddress.trim());
+        }
+        if (!map.containsKey("email_enabled")) {
+            map.put("email_enabled", (defaultEmailEnabled != null && !defaultEmailEnabled.isBlank()) ? defaultEmailEnabled.trim() : "true");
+        }
+
         return map;
     }
 

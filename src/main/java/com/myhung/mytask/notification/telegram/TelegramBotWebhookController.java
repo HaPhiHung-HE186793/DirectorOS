@@ -55,7 +55,7 @@ public class TelegramBotWebhookController {
             replyMessage = handleAddTask(text);
         } else {
             replyMessage = """
-                    🤖 *myTask Telegram Assistant*
+                    🤖 *DirectorOS Telegram Assistant*
                     
                     Các lệnh hỗ trợ:
                     - `/add <nội dung>`: Thêm nhanh task (VD: `/add Review báo cáo doanh thu sếp Minh giao ngày mai`)

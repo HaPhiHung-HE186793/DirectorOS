@@ -51,7 +51,7 @@ public class NotificationController {
 
     @PostMapping("/test-telegram")
     public ResponseEntity<Map<String, Object>> testTelegram(@RequestBody Map<String, String> body) {
-        String customMsg = body.getOrDefault("message", "🔔 [myTask Test] Tin nhắn thử nghiệm từ myTask App!");
+        String customMsg = body.getOrDefault("message", "🔔 [DirectorOS Test] Tin nhắn thử nghiệm từ DirectorOS!");
         boolean sent = telegramNotificationService.sendNotification(customMsg);
         return ResponseEntity.ok(Map.of(
                 "sent", sent,
@@ -62,8 +62,8 @@ public class NotificationController {
     @PostMapping("/test-email")
     public ResponseEntity<Map<String, Object>> testEmail(@RequestBody Map<String, String> body) {
         String email = body.getOrDefault("email", "user@example.com");
-        String subject = body.getOrDefault("subject", "📧 [myTask] Kế hoạch làm việc hôm nay");
-        String content = body.getOrDefault("message", "Chào bạn, đây là email nhắc nhở kế hoạch làm việc từ ứng dụng myTask.");
+        String subject = body.getOrDefault("subject", "📧 [DirectorOS] Kế hoạch làm việc hôm nay");
+        String content = body.getOrDefault("message", "Chào bạn, đây là email nhắc nhở kế hoạch làm việc từ ứng dụng DirectorOS.");
         boolean sent = emailNotificationService.sendEmailNotification(subject, content, email);
         return ResponseEntity.ok(Map.of(
                 "sent", sent,

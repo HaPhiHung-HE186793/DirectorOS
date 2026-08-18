@@ -80,7 +80,7 @@ public class NightPlanReminderScheduler {
 
         // 3. Construct Notification Message
         StringBuilder sb = new StringBuilder();
-        sb.append("🌙 *[myTask] ĐẾN GIỜ LẬP KẾ HOẠCH CHO NGÀY MAI (21:00)*\n\n");
+        sb.append("🌙 *[DirectorOS] ĐẾN GIỜ LẬP KẾ HOẠCH CHO NGÀY MAI (21:00)*\n\n");
 
         if (!bossTasks.isEmpty()) {
             sb.append("⚠️ *CẢNH BÁO VIỆC SẾP GIAO ĐANG BỊ NGUY CƠ QUÊN:* ").append(bossTasks.size()).append(" việc!\n");
@@ -104,7 +104,7 @@ public class NightPlanReminderScheduler {
             sb.append("📌 *Đã có sẵn Plan cho ngày ").append(tomorrow).append("*.\n");
         }
 
-        sb.append("👉 Vui lòng mở ứng dụng myTask để xác nhận hoặc điều chỉnh danh sách trước khi đi ngủ!");
+        sb.append("👉 Vui lòng mở ứng dụng DirectorOS để xác nhận hoặc điều chỉnh danh sách trước khi đi ngủ!");
 
         String message = sb.toString();
         telegramNotificationService.sendNotification(message);
