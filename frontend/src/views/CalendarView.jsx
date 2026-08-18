@@ -80,13 +80,13 @@ export default function CalendarView({
   return (
     <div className="space-y-4">
       {/* Calendar Header */}
-      <div className="flex items-center justify-between bg-gradient-to-r from-slate-900 via-indigo-950/30 to-slate-900 p-4 lg:p-5 rounded-2xl border border-slate-800/80">
+      <div className="flex flex-col sm:flex-row gap-3 sm:items-center justify-between bg-gradient-to-r from-slate-900 via-indigo-950/30 to-slate-900 p-4 lg:p-5 rounded-2xl border border-slate-800/80">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0">
             <Calendar className="w-5 h-5 text-indigo-400" />
           </div>
           <div>
-            <h2 className="text-xl lg:text-2xl font-extrabold text-white">
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-extrabold text-white">
               {MONTH_NAMES_VI[currentMonth - 1]}, {currentYear}
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
@@ -95,37 +95,43 @@ export default function CalendarView({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handlePrevMonth}
-            className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition active:scale-95 border border-slate-700/50"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          <button
-            onClick={handleGoToToday}
-            className="px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 text-xs font-bold transition border border-indigo-500/30"
-          >
-            Hôm nay
-          </button>
-          <button
-            onClick={handleNextMonth}
-            className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition active:scale-95 border border-slate-700/50"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
+        <div className="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2 w-full sm:w-auto">
+          <div className="flex items-center gap-1 sm:gap-2">
+            <button
+              onClick={handlePrevMonth}
+              className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition active:scale-95 border border-slate-700/50"
+              title="Tháng trước"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleGoToToday}
+              className="px-2.5 sm:px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 text-xs font-bold transition border border-indigo-500/30"
+            >
+              Hôm nay
+            </button>
+            <button
+              onClick={handleNextMonth}
+              className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition active:scale-95 border border-slate-700/50"
+              title="Tháng sau"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
           <button
             onClick={() => { setAddModalDate(null); setShowAddModal(true); }}
-            className="ml-2 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-xs font-bold transition border border-amber-500/30 flex items-center gap-1.5"
+            className="px-2.5 sm:px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-xs font-bold transition border border-amber-500/30 flex items-center gap-1"
           >
-            <Plus className="w-3.5 h-3.5" /> Thêm ngày đặc biệt
+            <Plus className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Thêm ngày đặc biệt</span>
+            <span className="sm:hidden text-[11px]">Ngày đặc biệt</span>
           </button>
         </div>
       </div>
 
       {/* Summary bar */}
       {calendarData && (
-        <div className="flex items-center gap-4 px-2 text-xs text-slate-400">
+        <div className="flex items-center gap-3 sm:gap-4 px-2 text-[11px] sm:text-xs text-slate-400 flex-wrap">
           <span className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-rose-400"></span>
             {calendarData.totalSpecialDates || 0} ngày đặc biệt
@@ -150,7 +156,7 @@ export default function CalendarView({
               {WEEKDAY_NAMES_VI.map((day, i) => (
                 <div
                   key={day}
-                  className={`py-2.5 text-center text-xs font-bold tracking-wider ${
+                  className={`py-2 text-center text-[11px] sm:text-xs font-bold tracking-wider ${
                     i === 6 ? 'text-rose-400' : 'text-slate-400'
                   }`}
                 >
@@ -170,21 +176,21 @@ export default function CalendarView({
                   <button
                     key={dayObj.date}
                     onClick={() => handleDayClick(dayObj)}
-                    className={`relative min-h-[72px] lg:min-h-[80px] p-1.5 border-b border-r border-slate-800/40 transition-all duration-150 text-left group
+                    className={`relative min-h-[58px] sm:min-h-[72px] lg:min-h-[80px] p-1 sm:p-1.5 border-b border-r border-slate-800/40 transition-all duration-150 text-left group
                       ${!dayObj.isCurrentMonth ? 'opacity-30' : ''}
                       ${dayObj.isToday ? 'bg-indigo-600/15 border-indigo-500/30' : 'hover:bg-slate-800/50'}
                       ${isSelected ? 'bg-amber-500/10 ring-1 ring-amber-500/40' : ''}
                     `}
                   >
                     {/* Solar Date (big, bold) */}
-                    <div className={`text-base lg:text-lg font-bold leading-none
+                    <div className={`text-sm sm:text-base lg:text-lg font-bold leading-none
                       ${dayObj.isToday ? 'text-indigo-300' : isSunday ? 'text-rose-400' : 'text-slate-200'}
                     `}>
                       {dayObj.day}
                     </div>
 
                     {/* Lunar Date (small, thin, below solar) */}
-                    <div className={`text-[10px] leading-none mt-0.5 font-light
+                    <div className={`text-[9px] sm:text-[10px] leading-none mt-0.5 font-light truncate
                       ${dayObj.isLunarNewMonth ? 'text-amber-400 font-semibold' : 'text-slate-500'}
                     `}>
                       {dayObj.isLunarNewMonth ? `${dayObj.lunarDay}/${dayObj.lunarMonth}` : dayObj.lunar}

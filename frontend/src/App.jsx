@@ -119,12 +119,12 @@ export default function App() {
       <Navbar onTriggerReminder={handleManualReminderTrigger} />
 
       {/* Main Body */}
-      <div className="flex-1 flex max-w-7xl w-full mx-auto pb-20 lg:pb-8">
+      <div className="flex-1 flex max-w-7xl w-full mx-auto pb-24 lg:pb-8 min-w-0">
         {/* Navigation Sidebar / Bottom Bar */}
         <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
 
         {/* Content View */}
-        <main className="flex-1 p-4 lg:p-8 overflow-y-auto">
+        <main className="flex-1 p-3.5 sm:p-5 lg:p-8 w-full min-w-0">
           {notificationBanner && (
             <div className="mb-6 p-4 rounded-xl bg-indigo-500/20 border border-indigo-500/30 text-indigo-200 text-xs font-semibold flex items-center justify-between shadow-lg shadow-indigo-500/10 animate-fade-in">
               <span>{notificationBanner}</span>

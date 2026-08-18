@@ -3,11 +3,11 @@ import { Calendar, Moon, ListTodo, Settings, Sparkles, CalendarCheck } from 'luc
 
 export default function Navigation({ activeTab, setActiveTab }) {
   const navItems = [
-    { id: 'calendar', label: 'Lịch', icon: Calendar, badge: null },
-    { id: 'today', label: 'Kế Hoạch Hôm Nay', icon: CalendarCheck, badge: null },
-    { id: 'night', label: 'Lập Plan Tối', icon: Moon, badge: null },
-    { id: 'tasks', label: 'Công Việc', icon: ListTodo, badge: null },
-    { id: 'settings', label: 'Cài Đặt', icon: Settings, badge: null },
+    { id: 'calendar', label: 'Lịch Vạn Niên', shortLabel: 'Lịch', icon: Calendar, badge: null },
+    { id: 'today', label: 'Kế Hoạch Hôm Nay', shortLabel: 'Hôm Nay', icon: CalendarCheck, badge: null },
+    { id: 'night', label: 'Lập Plan Tối', shortLabel: 'Plan Tối', icon: Moon, badge: null },
+    { id: 'tasks', label: 'Công Việc', shortLabel: 'Công Việc', icon: ListTodo, badge: null },
+    { id: 'settings', label: 'Cài Đặt', shortLabel: 'Cài Đặt', icon: Settings, badge: null },
   ];
 
   return (
@@ -59,7 +59,7 @@ export default function Navigation({ activeTab, setActiveTab }) {
       </aside>
 
       {/* Mobile Bottom Navigation Bar */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 glass-panel border-t border-slate-800/80 px-2 py-2 flex items-center justify-around bg-slate-950/95 backdrop-blur-lg">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 glass-panel border-t border-slate-800/80 px-1 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] flex items-center justify-around bg-slate-950/95 backdrop-blur-xl shadow-2xl">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -67,12 +67,19 @@ export default function Navigation({ activeTab, setActiveTab }) {
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl transition-all duration-200 ${
-                isActive ? 'text-indigo-400 font-bold scale-105' : 'text-slate-400 hover:text-slate-200'
+              className={`flex-1 flex flex-col items-center gap-1 py-1 rounded-xl transition-all duration-200 relative ${
+                isActive ? 'text-indigo-400' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <Icon className="w-5 h-5" />
-              <span className="text-[10px]">{item.label.split(' ')[0]}</span>
+              <div className={`p-1 rounded-lg transition-all ${isActive ? 'bg-indigo-500/15 text-indigo-400 scale-110' : ''}`}>
+                <Icon className="w-5 h-5" />
+              </div>
+              <span className={`text-[10px] tracking-tight whitespace-nowrap ${isActive ? 'font-extrabold text-indigo-300' : 'font-medium text-slate-400'}`}>
+                {item.shortLabel}
+              </span>
+              {isActive && (
+                <span className="w-1 h-1 rounded-full bg-indigo-400 absolute -bottom-1" />
+              )}
             </button>
           );
         })}
