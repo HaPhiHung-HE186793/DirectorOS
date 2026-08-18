@@ -574,6 +574,17 @@ export const syncCalendars = async (activeCals = []) => {
 
 const yearCache = {};
 
+export const clearYearCache = () => {
+  Object.keys(yearCache).forEach(k => delete yearCache[k]);
+  try {
+    Object.keys(localStorage).forEach(k => {
+      if (k.startsWith('director_calendar_year_')) {
+        localStorage.removeItem(k);
+      }
+    });
+  } catch (e) {}
+};
+
 export const fetchCalendarYear = async (year) => {
   if (yearCache[year]) return yearCache[year];
 

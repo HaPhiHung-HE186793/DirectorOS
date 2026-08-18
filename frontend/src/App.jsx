@@ -18,6 +18,7 @@ import {
   fetchCalendarMonth,
   fetchCalendarYear,
   fetchSpecialDates,
+  clearYearCache,
   createSpecialDate,
   deleteSpecialDate as apiDeleteSpecialDate,
 } from './services/api';
@@ -89,7 +90,15 @@ export default function App() {
   };
 
   const handleCreateSpecialDate = async (data) => {
-    await createSpecialDate(data);
+    const created = await createSpecialDate(data);
+    if (created) {
+      setSpecialDates(prev => {
+        const updated = [...prev, created];
+        try { localStorage.setItem('director_special_dates_cache', JSON.stringify(updated)); } catch(e) {}
+        return updated;
+      });
+      clearYearCache();
+    }
     setNotificationBanner(`📅 Đã thêm ngày đặc biệt: "${data.title}"`);
     setTimeout(() => setNotificationBanner(null), 4000);
     loadCalendarData(calendarYear, calendarMonth);
@@ -97,6 +106,12 @@ export default function App() {
 
   const handleDeleteSpecialDate = async (id) => {
     await apiDeleteSpecialDate(id);
+    setSpecialDates(prev => {
+      const updated = prev.filter(item => item.id !== id && item.specialDateId !== id);
+      try { localStorage.setItem('director_special_dates_cache', JSON.stringify(updated)); } catch(e) {}
+      return updated;
+    });
+    clearYearCache();
     loadCalendarData(calendarYear, calendarMonth);
   };
 
