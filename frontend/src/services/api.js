@@ -495,8 +495,12 @@ export const addCalendar = async (calendarData) => {
       mockCalendars.push(normalized);
       saveStoredCalendars(mockCalendars);
       return normalized;
+    } else {
+      console.error("Backend API /api/calendars POST failed:", res.status, res.statusText);
     }
-  } catch (err) {}
+  } catch (err) {
+    console.error("Network error adding calendar to backend DB:", err);
+  }
 
   const newCal = normalizeCalendar({ ...calendarData, id: Date.now() });
   mockCalendars.push(newCal);
@@ -506,8 +510,13 @@ export const addCalendar = async (calendarData) => {
 
 export const deleteCalendar = async (id) => {
   try {
-    await fetch(`${BASE_URL}/calendars/${id}`, { method: 'DELETE' });
-  } catch (err) {}
+    const res = await fetch(`${BASE_URL}/calendars/${id}`, { method: 'DELETE' });
+    if (!res.ok) {
+      console.error("Backend API /api/calendars DELETE failed:", res.status, res.statusText);
+    }
+  } catch (err) {
+    console.error("Network error deleting calendar from backend DB:", err);
+  }
   mockCalendars = mockCalendars.filter(c => c.id !== id && String(c.id) !== String(id));
   saveStoredCalendars(mockCalendars);
 };
@@ -525,8 +534,12 @@ export const updateCalendar = async (id, updatedData) => {
       mockCalendars = mockCalendars.map(c => (c.id === id || String(c.id) === String(id)) ? normalized : c);
       saveStoredCalendars(mockCalendars);
       return normalized;
+    } else {
+      console.error("Backend API /api/calendars PUT failed:", res.status, res.statusText);
     }
-  } catch (err) {}
+  } catch (err) {
+    console.error("Network error updating calendar in backend DB:", err);
+  }
 
   const updated = normalizeCalendar({ id, ...updatedData });
   mockCalendars = mockCalendars.map(c => (c.id === id || String(c.id) === String(id)) ? updated : c);
