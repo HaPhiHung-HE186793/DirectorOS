@@ -15,9 +15,9 @@ export const TelegramSettingsCard = ({
   const [showToken, setShowToken] = useState(false);
 
   return (
-    <div className="glass-panel p-6 rounded-2xl border border-slate-800/80 space-y-4">
+    <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800/80 space-y-4">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center shrink-0">
           <Send className="w-5 h-5" />
         </div>
         <div>
@@ -66,18 +66,18 @@ export const TelegramSettingsCard = ({
             id="enableTelegram"
             checked={enabled}
             onChange={(e) => setEnabled(e.target.checked)}
-            className="w-4 h-4 rounded text-sky-500 border-slate-800 bg-slate-900 cursor-pointer"
+            className="w-4 h-4 rounded text-sky-500 border-slate-800 bg-slate-900 cursor-pointer shrink-0"
           />
           <label htmlFor="enableTelegram" className="text-xs font-semibold text-slate-300 cursor-pointer">
             Bật tự động nhắc việc Telegram 07:00 & 21:00 hàng ngày
           </label>
         </div>
 
-        <div className="pt-2 flex items-center gap-3">
+        <div className="pt-2 flex flex-col sm:flex-row sm:items-center gap-3">
           <button
             onClick={onTestNotification}
             disabled={loading}
-            className="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-md shadow-sky-600/20 disabled:opacity-50"
+            className="w-full sm:w-auto px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-md shadow-sky-600/20 disabled:opacity-50"
           >
             {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             {loading ? 'Đang lưu & gửi...' : 'Gửi thử tin nhắn qua Telegram'}
@@ -85,8 +85,8 @@ export const TelegramSettingsCard = ({
 
           {testResult && (
             <div className={`text-xs flex items-center gap-1.5 font-semibold ${testResult.sent ? 'text-emerald-400' : 'text-rose-400'}`}>
-              {testResult.sent ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-              {testResult.sent ? 'Gửi Telegram thành công!' : 'Chưa gửi được (Kiểm tra Token/Bot)'}
+              {testResult.sent ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
+              <span>{testResult.sent ? 'Gửi Telegram thành công!' : 'Chưa gửi được (Kiểm tra Token/Bot)'}</span>
             </div>
           )}
         </div>

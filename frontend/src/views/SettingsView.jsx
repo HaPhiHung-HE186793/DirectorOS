@@ -233,12 +233,12 @@ export const SettingsView = () => {
   );
 
   return (
-    <div className="space-y-6 pb-12 max-w-4xl mx-auto">
+    <div className="space-y-4 sm:space-y-6 pb-12 max-w-4xl mx-auto w-full min-w-0">
       {/* Header & Global Save Button */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-black text-white">Cấu hình Đa Kênh & Quản Lý Đa Email</h2>
-          <p className="text-xs text-slate-400 mt-1">
+          <h2 className="text-lg sm:text-xl font-black text-white">Cấu hình Đa Kênh & Quản Lý Đa Email</h2>
+          <p className="text-xs text-slate-400 mt-0.5 sm:mt-1">
             Đồng bộ nhiều Gmail, phát hiện xung đột lịch trình và tùy chỉnh giọng đọc Thư ký AI.
           </p>
         </div>
@@ -246,7 +246,7 @@ export const SettingsView = () => {
         <button
           onClick={handleSaveAllSettings}
           disabled={saving}
-          className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-xs flex items-center gap-2 transition active:scale-95 shadow-lg shadow-emerald-600/20 disabled:opacity-50"
+          className="w-full sm:w-auto px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition active:scale-95 shadow-lg shadow-emerald-600/20 disabled:opacity-50 shrink-0"
         >
           {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           {saving ? 'Đang Lưu...' : 'Lưu Cấu Hình'}

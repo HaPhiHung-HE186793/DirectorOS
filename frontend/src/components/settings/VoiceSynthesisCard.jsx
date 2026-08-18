@@ -12,9 +12,9 @@ export const VoiceSynthesisCard = ({
   testingVoice
 }) => {
   return (
-    <div className="glass-panel p-6 rounded-2xl border border-slate-800/80 space-y-4">
+    <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-800/80 space-y-4">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
           <Mic className="w-5 h-5" />
         </div>
         <div>
@@ -23,7 +23,7 @@ export const VoiceSynthesisCard = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 pt-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-2">
         <div>
           <label className="text-xs font-semibold text-slate-300">Ngôn ngữ Đọc của AI</label>
           <select
@@ -32,7 +32,7 @@ export const VoiceSynthesisCard = ({
               setAiVoiceLang(e.target.value);
               setAiVoiceName('');
             }}
-            className="w-full mt-1 p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500"
+            className="w-full mt-1 p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500 max-w-full"
           >
             {getAvailableLanguages().map((lang) => (
               <option key={lang.code} value={lang.code}>
@@ -47,9 +47,9 @@ export const VoiceSynthesisCard = ({
           <select
             value={aiVoiceName}
             onChange={(e) => setAiVoiceName(e.target.value)}
-            className="w-full mt-1 p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500"
+            className="w-full mt-1 p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500 max-w-full"
           >
-            <option value="">-- Tự động chọn giọng chuẩn nhất ({aiVoiceLang}) --</option>
+            <option value="">-- Tự động chọn giọng chuẩn --</option>
             {filteredVoices.map((v, i) => (
               <option key={i} value={v.name}>
                 {v.name} ({v.lang})
@@ -60,10 +60,10 @@ export const VoiceSynthesisCard = ({
       </div>
 
       {/* Test Voice Button */}
-      <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
+      <div className="pt-3 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <button
           onClick={onTestVoice}
-          className={`px-4 py-2.5 rounded-xl font-semibold text-xs flex items-center gap-2 transition active:scale-95 shadow-md ${
+          className={`w-full sm:w-auto px-4 py-2.5 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 transition active:scale-95 shadow-md ${
             testingVoice
               ? 'bg-rose-600 text-white animate-pulse'
               : 'bg-amber-600 hover:bg-amber-500 text-white shadow-amber-600/20'

@@ -114,7 +114,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-['Plus_Jakarta_Sans',sans-serif]">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-['Plus_Jakarta_Sans',sans-serif] overflow-x-hidden w-full max-w-full">
       {/* Top Navbar */}
       <Navbar onTriggerReminder={handleManualReminderTrigger} />
 
@@ -124,7 +124,7 @@ export default function App() {
         <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
 
         {/* Content View */}
-        <main className="flex-1 p-3.5 sm:p-5 lg:p-8 w-full min-w-0">
+        <main className="flex-1 p-3 sm:p-5 lg:p-8 w-full min-w-0 max-w-full overflow-x-hidden">
           {notificationBanner && (
             <div className="mb-6 p-4 rounded-xl bg-indigo-500/20 border border-indigo-500/30 text-indigo-200 text-xs font-semibold flex items-center justify-between shadow-lg shadow-indigo-500/10 animate-fade-in">
               <span>{notificationBanner}</span>
