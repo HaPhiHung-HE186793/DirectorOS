@@ -67,12 +67,18 @@ export const SettingsView = () => {
 
     // Load saved settings & connected calendars
     const loadData = async () => {
-      const data = await fetchSettings();
-      if (data.telegram_bot_token) setBotToken(data.telegram_bot_token);
-      if (data.telegram_chat_id) setChatId(data.telegram_chat_id);
-      if (data.telegram_enabled !== undefined) setEnabled(data.telegram_enabled === 'true');
-      if (data.email_address) setEmailAddress(data.email_address);
-      if (data.email_enabled !== undefined) setEmailEnabled(data.email_enabled === 'true');
+      const data = await fetchSettings() || {};
+      const botTok = data.telegram_bot_token || data.TELEGRAM_BOT_TOKEN;
+      const cId = data.telegram_chat_id || data.TELEGRAM_CHAT_ID;
+      const isEnabled = data.telegram_enabled !== undefined ? data.telegram_enabled === 'true' : (data.TELEGRAM_ENABLED !== undefined ? data.TELEGRAM_ENABLED === 'true' : undefined);
+      const emailAddr = data.email_address || data.EMAIL_ADDRESS;
+      const emailEna = data.email_enabled !== undefined ? data.email_enabled === 'true' : (data.EMAIL_ENABLED !== undefined ? data.EMAIL_ENABLED === 'true' : undefined);
+
+      if (botTok) setBotToken(botTok);
+      if (cId) setChatId(cId);
+      if (isEnabled !== undefined) setEnabled(isEnabled);
+      if (emailAddr) setEmailAddress(emailAddr);
+      if (emailEna !== undefined) setEmailEnabled(emailEna);
       if (data.ai_voice_lang) setAiVoiceLang(data.ai_voice_lang);
       if (data.ai_voice_name) setAiVoiceName(data.ai_voice_name);
 
