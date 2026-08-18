@@ -499,6 +499,7 @@ export const batchSaveCalendars = async (draftList = []) => {
       const normalized = Array.isArray(data) ? data.map(normalizeCalendar) : [];
       mockCalendars = normalized;
       saveStoredCalendars(normalized);
+      clearYearCache();
       return normalized;
     }
     const errText = await res.text().catch(() => '');
@@ -523,6 +524,7 @@ export const addCalendar = async (calendarData) => {
     mockCalendars = mockCalendars.filter(c => c.id !== normalized.id);
     mockCalendars.push(normalized);
     saveStoredCalendars(mockCalendars);
+    clearYearCache();
     return normalized;
   }
   const errText = await res.text().catch(() => '');
@@ -534,6 +536,7 @@ export const deleteCalendar = async (id) => {
   if (res.ok) {
     mockCalendars = mockCalendars.filter(c => c.id !== id && String(c.id) !== String(id));
     saveStoredCalendars(mockCalendars);
+    clearYearCache();
     return true;
   }
   const errText = await res.text().catch(() => '');
@@ -551,6 +554,7 @@ export const updateCalendar = async (id, updatedData) => {
     const normalized = normalizeCalendar(data) || { id, ...updatedData };
     mockCalendars = mockCalendars.map(c => (c.id === id || String(c.id) === String(id)) ? normalized : c);
     saveStoredCalendars(mockCalendars);
+    clearYearCache();
     return normalized;
   }
   const errText = await res.text().catch(() => '');
@@ -558,9 +562,14 @@ export const updateCalendar = async (id, updatedData) => {
 };
 
 export const syncCalendars = async (activeCals = []) => {
+  clearYearCache();
   try {
     const res = await fetch(`${BASE_URL}/calendars/sync`, { method: 'POST' });
-    if (res.ok) return await res.json();
+    if (res.ok) {
+      const data = await res.json();
+      clearYearCache();
+      return data;
+    }
   } catch (err) {}
 
   if (!activeCals || activeCals.length < 2) {
